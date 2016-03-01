@@ -2,21 +2,29 @@
 
 import fileinput
 
-def main():
+def elevator(s):
+  floor = 0
+  for c in s:
+    if c == '(':
+      floor += 1
+    if c == ')':
+      floor -= 1
+  return floor
+
+def enter_basement(s):
   floor = 0
   position = 0
-  positionEnterBasement = 0
-  for line in fileinput.input():
-    for c in line:
-      if c == '(':
-        floor += 1
-      if c == ')':
-        floor -= 1
-      position += 1
-      if floor < 0 and positionEnterBasement <= 0:
-        positionEnterBasement = position
-  print "Final floor:", floor
-  print "Entered basement at position:", positionEnterBasement
+  for c in s:
+    position += 1
+    if c == '(':
+      floor += 1
+    if c == ')':
+      floor -= 1
+    if floor < 0:
+      return position
+  return None
 
 if __name__ == "__main__":
-  main()
+  s = fileinput.input()[0]
+  print 'Final floor:', elevator(s)
+  print 'Position entered basement:', enter_basement(s)

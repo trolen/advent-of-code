@@ -1,1 +1,0 @@
-ls day1* | entr day1.py day1_input.txt
