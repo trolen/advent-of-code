@@ -2,26 +2,23 @@
 
 import fileinput
 
-def elevator(s):
+def elevator_iter(s):
   floor = 0
   for c in s:
     if c == '(':
       floor += 1
     if c == ')':
       floor -= 1
-  return floor
+    yield floor
+
+def elevator(s):
+  if len(s) > 0:
+    return [x for x in elevator_iter(s)][-1]
+  return 0
 
 def enter_basement(s):
-  floor = 0
-  position = 0
-  for c in s:
-    position += 1
-    if c == '(':
-      floor += 1
-    if c == ')':
-      floor -= 1
-    if floor < 0:
-      return position
+  if len(s) > 0:
+    return list(p for (p,f) in enumerate(elevator_iter(s)) if f == -1)[0] + 1
   return None
 
 if __name__ == "__main__":
