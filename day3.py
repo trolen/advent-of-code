@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import fileinput
 
@@ -39,6 +39,8 @@ def year2(data):
   return len(houses)
 
 if __name__ == "__main__":
-  s = fileinput.input()[0]
-  print "Year 1, delivered to", year1(s), "houses"
-  print "Year 2, delivered to", year2(s), "houses"
+  s = ''
+  for line in fileinput.input():
+    s += line
+  print("Year 1, delivered to %s houses" % year1(s))
+  print("Year 2, delivered to %s houses" % year2(s))
