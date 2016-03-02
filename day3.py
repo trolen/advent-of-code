@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import fileinput
+
 INPUT_FILE="day3_input.txt"
 
 class house_grid:
@@ -29,50 +31,47 @@ class deliverer:
   def deliver_to(self, grid):
     grid.deliver_to(self._x, self._y)
 
-def accumulate_year1():
+def accumulate_year1(data):
   houses = house_grid()
   santa = deliverer()
   santa.deliver_to(houses)
-  with open(INPUT_FILE, 'r') as f:
-    data = f.read()
-    for c in data:
-      if c == '<':
-        santa.east()
-        santa.deliver_to(houses)
-      if c == '>':
-        santa.west()
-        santa.deliver_to(houses)
-      if c == '^':
-        santa.north()
-        santa.deliver_to(houses)
-      if c == 'v':
-        santa.south()
-        santa.deliver_to(houses)
+  for c in data:
+    if c == '<':
+      santa.east()
+      santa.deliver_to(houses)
+    if c == '>':
+      santa.west()
+      santa.deliver_to(houses)
+    if c == '^':
+      santa.north()
+      santa.deliver_to(houses)
+    if c == 'v':
+      santa.south()
+      santa.deliver_to(houses)
   return houses.house_count()
 
-def accumulate_year2():
+def accumulate_year2(data):
   houses = house_grid()
   deliverers = [deliverer(), deliverer()]
   deliverers[0].deliver_to(houses)
   toggle = 0
-  with open(INPUT_FILE, 'r') as f:
-    data = f.read()
-    for c in data:
-      if c == '<':
-        deliverers[toggle].east()
-        deliverers[toggle].deliver_to(houses)
-      if c == '>':
-        deliverers[toggle].west()
-        deliverers[toggle].deliver_to(houses)
-      if c == '^':
-        deliverers[toggle].north()
-        deliverers[toggle].deliver_to(houses)
-      if c == 'v':
-        deliverers[toggle].south()
-        deliverers[toggle].deliver_to(houses)
-      toggle = 1 - toggle
+  for c in data:
+    if c == '<':
+      deliverers[toggle].east()
+      deliverers[toggle].deliver_to(houses)
+    if c == '>':
+      deliverers[toggle].west()
+      deliverers[toggle].deliver_to(houses)
+    if c == '^':
+      deliverers[toggle].north()
+      deliverers[toggle].deliver_to(houses)
+    if c == 'v':
+      deliverers[toggle].south()
+      deliverers[toggle].deliver_to(houses)
+    toggle = 1 - toggle
   return houses.house_count()
 
 if __name__ == "__main__":
-  print "Year 1, delivered to", accumulate_year1(), "houses"
-  print "Year 2, delivered to", accumulate_year2(), "houses"
+  s = fileinput.input()[0]
+  print "Year 1, delivered to", accumulate_year1(s), "houses"
+  print "Year 2, delivered to", accumulate_year2(s), "houses"
