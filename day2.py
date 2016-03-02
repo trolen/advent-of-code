@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import fileinput
 
@@ -14,10 +14,9 @@ def get_dimensions(line):
 if __name__ == "__main__":
   total_area = 0
   total_length = 0
-  lines = fileinput.input()
-  for line in lines:
+  for line in fileinput.input():
     dims = get_dimensions(line)
     total_area += calc_area(dims[0], dims[1], dims[2])
     total_length += calc_length(dims[0], dims[1], dims[2])
-  print "Total paper area:", total_area, "square feet"
-  print "Total ribbon length:", total_length, "feet"
+  print("Total paper area: %s square feet" % total_area)
+  print("Total ribbon length: %s feet" % total_length)
