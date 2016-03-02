@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-INPUT_FILE="day5_input.txt"
+import fileinput
+
 DISALLOWED=['ab','cd','pq','xy']
 
 def is_nice1(line):
@@ -32,18 +33,13 @@ def is_nice2(line):
     prev_c1 = c
   return repeated_string and repeated_letter
 
-def count_nice_strings(ver):
-  nice_count = 0
-  with open(INPUT_FILE, 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.rstrip()
-      if ver == 1 and is_nice1(line):
-        nice_count += 1
-      if ver == 2 and is_nice2(line):
-        nice_count += 1
-  return nice_count
-
 if __name__ == "__main__":
-  print "Nice strings #1:", count_nice_strings(1)
-  print "Nice strings #2:", count_nice_strings(2)
+  nice1 = 0
+  nice2 = 0
+  for line in fileinput.input():
+    if is_nice1(line):
+      nice1 += 1
+    if is_nice2(line):
+      nice2 += 1
+  print("Nice strings #1: %s" % nice1)
+  print("Nice strings #2: %s" % nice2)
