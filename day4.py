@@ -1,21 +1,18 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-import md5
+import hashlib
 
-SECRET_KEY='iwrupvqb'
-
-def find_hash(s):
-  key_hash = md5.new(SECRET_KEY)
+def find_hash(key, prefix):
+  key_hash = hashlib.md5(key.encode())
   i = 0
   while True:
     new_hash = key_hash.copy()
-    new_hash.update(str(i))
-    if new_hash.hexdigest().startswith(s):
+    new_hash.update(str(i).encode())
+    if new_hash.hexdigest().startswith(prefix):
       return i
     i += 1
 
 if __name__ == '__main__':
-  i1 = find_hash('00000')
-  print 'Produces \'00000\' hash:', i1 
-  i2 = find_hash('000000')
-  print 'Produces \'000000\' hash:', i2 
+  secret_key = 'iwrupvqb'
+  print('Produces "00000" hash: %s' % find_hash(secret_key, '00000'))
+  print('Produces "000000" hash: %s' % find_hash(secret_key, '000000'))
