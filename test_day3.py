@@ -3,7 +3,7 @@
 import day3
 import unittest
 
-class TestDay2(unittest.TestCase):
+class TestDay3(unittest.TestCase):
   def test_year1(self):
     self.assertEqual(day3.year1('>'), 2)
     self.assertEqual(day3.year1('^>v<'), 4)
