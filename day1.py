@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import fileinput
 
@@ -22,6 +22,8 @@ def enter_basement(s):
   return None
 
 if __name__ == "__main__":
-  s = fileinput.input()[0]
-  print 'Final floor:', elevator(s)
-  print 'Position entered basement:', enter_basement(s)
+  s = ''
+  for line in fileinput.input():
+    s += line
+  print('Final floor: %s' % elevator(s))
+  print('Position entered basement: %s' % enter_basement(s))
