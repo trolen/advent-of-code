@@ -1,12 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-INPUT_FILE="day6_input.txt"
-
-def read_input_file():
-  lines = []
-  with open(INPUT_FILE, 'r') as f:
-    lines = f.readlines()
-  return lines
+import fileinput
 
 def get_command(line):
   if line.startswith('turn off'):
@@ -29,11 +23,9 @@ def get_end(line):
   y = words[2].split(' ')[0]
   return int(x), int(y)
 
-def set_lights1():
+def set_lights1(lines):
   light_grid = [[0 for x in range(1000)] for x in range(1000)]
-  lines = read_input_file()
   for line in lines:
-    line = line.rstrip()
     command = get_command(line)
     startx, starty = get_start(line)
     endx, endy = get_end(line)
@@ -52,11 +44,9 @@ def set_lights1():
         light_count += 1
   return light_count
 
-def set_lights2():
+def set_lights2(lines):
   light_grid = [[0 for x in range(1000)] for x in range(1000)]
-  lines = read_input_file()
   for line in lines:
-    line = line.rstrip()
     command = get_command(line)
     startx, starty = get_start(line)
     endx, endy = get_end(line)
@@ -75,5 +65,6 @@ def set_lights2():
   return brightness
 
 if __name__ == "__main__":
-  print "Lights lit (method #1):", set_lights1()
-  print "Total brightness (method #2):", set_lights2()
+  lines = [x.rstrip() for x in fileinput.input()]
+  print("Lights lit (method #1): %s" % set_lights1(lines))
+  print("Total brightness (method #2): %s" % set_lights2(lines))
