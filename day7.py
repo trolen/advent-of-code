@@ -1,32 +1,30 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
+import fileinput
 import sys
 
-INPUT_FILE='day7_input.txt'
 OPERATIONS=['AND', 'OR', 'NOT', 'XOR', 'LSHIFT', 'RSHIFT']
 
 circuit = []
 
-def load_circuit():
+def load_circuit(lines):
   global circuit
   del circuit[:]
-  with open(INPUT_FILE, 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.rstrip().split(' -> ')
-      target = line[1]
-      expr = line[0].split(' ')
-      oper = ''
-      arg1 = ''
-      arg2 = ''
-      for term in expr:
-        if term in OPERATIONS:
-          oper = term
-        elif arg1 == '':
-          arg1 = term
-        else:
-          arg2 = term
-      circuit.append([target, oper, arg1, arg2, None])
+  for line in lines:
+    line = line.rstrip().split(' -> ')
+    target = line[1]
+    expr = line[0].split(' ')
+    oper = ''
+    arg1 = ''
+    arg2 = ''
+    for term in expr:
+      if term in OPERATIONS:
+        oper = term
+      elif arg1 == '':
+        arg1 = term
+      else:
+        arg2 = term
+    circuit.append([target, oper, arg1, arg2, None])
 
 def evaluate(s):
   global circuit
@@ -59,8 +57,8 @@ def evaluate(s):
         value = evaluate(arg1) >> evaluate(arg2)
       if value != None:
         expr[4] = value
-        return value
-  print "ERROR: String (%s) not found in evaluate()" % s
+        return 0xffff & value
+  print("ERROR: String (%s) not found in evaluate()" % s)
   sys.exit(-1)
   return 0
 
@@ -71,12 +69,13 @@ def assign(target, value):
       expr[4] = value
 
 if __name__ == '__main__':
-  print "Loading circuit..."
-  load_circuit()
+  lines = [line for line in fileinput.input()]
+  print("Loading circuit...")
+  load_circuit(lines)
   value = evaluate('a')
-  print "Evaluate a ->", value
-  print "Reloading circuit..."
-  load_circuit()
-  print "Assign b <-", value
+  print("Evaluate a -> %s" % value)
+  print("Reloading circuit...")
+  load_circuit(lines)
+  print("Assign b <- %s" % value)
   assign('b', value)
-  print "Evaluate a ->", evaluate('a')
+  print("Evaluate a -> %s" % evaluate('a'))
