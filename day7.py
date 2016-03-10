@@ -7,19 +7,21 @@ class Circuit:
     self._operations = ['AND', 'OR', 'NOT', 'XOR', 'LSHIFT', 'RSHIFT']
     self._circuit = []
     for line in lines:
-      line = line.rstrip().split(' -> ')
-      wire = line[1]
-      expr = line[0].split(' ')
+      expr = line.rstrip().split(' ')
+      wire = expr[-1]
       oper = ''
       arg1 = ''
       arg2 = ''
-      for term in expr:
-        if term in self._operations:
-          oper = term
-        elif arg1 == '':
-          arg1 = term
-        else:
-          arg2 = term
+      n = len(expr)
+      if n == 3:
+        arg1 = expr[0]
+      elif n == 4:
+        oper = expr[0]
+        arg1 = expr[1]
+      elif n == 5:
+        arg1 = expr[0]
+        oper = expr[1]
+        arg2 = expr[2]
       self._circuit.append([wire, oper, arg1, arg2, None])
 
   def reset(self):
