@@ -1,81 +1,88 @@
 #!/usr/bin/env python3
 
 import fileinput
-import sys
 
-OPERATIONS=['AND', 'OR', 'NOT', 'XOR', 'LSHIFT', 'RSHIFT']
+class Circuit:
+  def __init__(self, lines):
+    self._operations = ['AND', 'OR', 'NOT', 'XOR', 'LSHIFT', 'RSHIFT']
+    self._circuit = []
+    for line in lines:
+      line = line.rstrip().split(' -> ')
+      target = line[1]
+      expr = line[0].split(' ')
+      oper = ''
+      arg1 = ''
+      arg2 = ''
+      for term in expr:
+        if term in self._operations:
+          oper = term
+        elif arg1 == '':
+          arg1 = term
+        else:
+          arg2 = term
+      self._circuit.append([target, oper, arg1, arg2, None])
 
-circuit = []
+  def reset(self):
+    for expr in self._circuit:
+      expr[4] = None
 
-def load_circuit(lines):
-  global circuit
-  del circuit[:]
-  for line in lines:
-    line = line.rstrip().split(' -> ')
-    target = line[1]
-    expr = line[0].split(' ')
-    oper = ''
-    arg1 = ''
-    arg2 = ''
-    for term in expr:
-      if term in OPERATIONS:
-        oper = term
-      elif arg1 == '':
-        arg1 = term
-      else:
-        arg2 = term
-    circuit.append([target, oper, arg1, arg2, None])
-
-def evaluate(s):
-  global circuit
-  try:
-    value = int(s)
-    return value
-  except:
-    pass
-  for expr in circuit:
-    if s == expr[0]:
-      oper = expr[1]
-      arg1 = expr[2]
-      arg2 = expr[3]
-      value = expr[4]
-      if value != None:
-        return value
-      if oper == '':
-        value = evaluate(arg1)
-      elif oper == 'AND':
-        value = evaluate(arg1) & evaluate(arg2)
-      elif oper == 'OR':
-        value = evaluate(arg1) | evaluate(arg2)
-      elif oper == 'NOT':
-        value = ~evaluate(arg1)
-      elif oper == 'XOR':
-        value = evaluate(arg1) ^ evaluate(arg2)
-      elif oper == 'LSHIFT':
-        value = evaluate(arg1) << evaluate(arg2)
-      elif oper == 'RSHIFT':
-        value = evaluate(arg1) >> evaluate(arg2)
-      if value != None:
+  def set(self, target, value):
+    for expr in self._circuit:
+      if target == expr[0]:
         expr[4] = value
-        return 0xffff & value
-  print("ERROR: String (%s) not found in evaluate()" % s)
-  sys.exit(-1)
-  return 0
 
-def assign(target, value):
-  global circuit
-  for expr in circuit:
-    if target == expr[0]:
-      expr[4] = value
+  def get(self, target):
+    for expr in self._circuit:
+      if target == expr[0]:
+        return expr[4]
+
+  def run(self):
+    for expr in self._circuit:
+      self._evaluate(expr[0])
+
+  def _evaluate(self, s):
+    try:
+      value = int(s)
+      return value
+    except:
+      pass
+    for expr in self._circuit:
+      if s == expr[0]:
+        oper = expr[1]
+        arg1 = expr[2]
+        arg2 = expr[3]
+        value = expr[4]
+        if value != None:
+          return value
+        if oper == '':
+          value = self._evaluate(arg1)
+        elif oper == 'AND':
+          value = self._evaluate(arg1) & self._evaluate(arg2)
+        elif oper == 'OR':
+          value = self._evaluate(arg1) | self._evaluate(arg2)
+        elif oper == 'NOT':
+          value = ~self._evaluate(arg1)
+        elif oper == 'XOR':
+          value = self._evaluate(arg1) ^ self._evaluate(arg2)
+        elif oper == 'LSHIFT':
+          value = self._evaluate(arg1) << self._evaluate(arg2)
+        elif oper == 'RSHIFT':
+          value = self._evaluate(arg1) >> self._evaluate(arg2)
+        if value != None:
+          expr[4] = 0xffff & value
+          return expr[4]
+    return None
 
 if __name__ == '__main__':
-  lines = [line for line in fileinput.input()]
-  print("Loading circuit...")
-  load_circuit(lines)
-  value = evaluate('a')
-  print("Evaluate a -> %s" % value)
-  print("Reloading circuit...")
-  load_circuit(lines)
+  circuit = Circuit([line for line in fileinput.input()])
+  print("Running circuit...")
+  circuit.run()
+  value = circuit.get('a')
+  print("a -> %s" % value)
+  print("Resetting circuit...")
+  circuit.reset()
   print("Assign b <- %s" % value)
-  assign('b', value)
-  print("Evaluate a -> %s" % evaluate('a'))
+  circuit.set('b', value)
+  print("Running circuit...")
+  circuit.run()
+  print("Evaluate a -> %s" % circuit.get('a'))

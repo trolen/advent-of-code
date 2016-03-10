@@ -13,15 +13,16 @@ class TestDay7(unittest.TestCase):
              'y RSHIFT 2 -> g',
              'NOT x -> h',
              'NOT y -> i']
-    day7.load_circuit(lines)
-    self.assertEqual(day7.evaluate('d'), 72)
-    self.assertEqual(day7.evaluate('e'), 507)
-    self.assertEqual(day7.evaluate('f'), 492)
-    self.assertEqual(day7.evaluate('g'), 114)
-    self.assertEqual(day7.evaluate('h'), 65412)
-    self.assertEqual(day7.evaluate('i'), 65079)
-    self.assertEqual(day7.evaluate('x'), 123)
-    self.assertEqual(day7.evaluate('y'), 456)
+    circuit = day7.Circuit(lines)
+    circuit.run()
+    self.assertEqual(circuit.get('d'), 72)
+    self.assertEqual(circuit.get('e'), 507)
+    self.assertEqual(circuit.get('f'), 492)
+    self.assertEqual(circuit.get('g'), 114)
+    self.assertEqual(circuit.get('h'), 65412)
+    self.assertEqual(circuit.get('i'), 65079)
+    self.assertEqual(circuit.get('x'), 123)
+    self.assertEqual(circuit.get('y'), 456)
 
 if __name__ == '__main__':
   unittest.main()
