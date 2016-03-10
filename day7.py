@@ -8,7 +8,7 @@ class Circuit:
     self._circuit = []
     for line in lines:
       line = line.rstrip().split(' -> ')
-      target = line[1]
+      wire = line[1]
       expr = line[0].split(' ')
       oper = ''
       arg1 = ''
@@ -20,20 +20,20 @@ class Circuit:
           arg1 = term
         else:
           arg2 = term
-      self._circuit.append([target, oper, arg1, arg2, None])
+      self._circuit.append([wire, oper, arg1, arg2, None])
 
   def reset(self):
     for expr in self._circuit:
       expr[4] = None
 
-  def set(self, target, value):
+  def set(self, wire, value):
     for expr in self._circuit:
-      if target == expr[0]:
+      if wire == expr[0]:
         expr[4] = value
 
-  def get(self, target):
+  def get(self, wire):
     for expr in self._circuit:
-      if target == expr[0]:
+      if wire == expr[0]:
         return expr[4]
 
   def run(self):
