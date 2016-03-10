@@ -1,33 +1,33 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-INPUT_FILE="day8_input.txt"
+import fileinput
 
-def encode(s):
+def calc_code_length(s):
+  return len(s)
+
+def calc_mem_length(s):
+  return len(eval(s))
+
+def calc_encoded_length(s):
   result = '"'
   for c in s:
     if c in '"\\':
       result += '\\'
     result += c
   result += '"'
-  return result
+  return len(result)
 
-def accumulate_totals():
+if __name__ == "__main__":
   total_code = 0
   total_mem = 0
   total_encoded = 0
-  with open(INPUT_FILE, 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.rstrip()
-      total_code += len(line)
-      total_mem += len(eval(line))
-      total_encoded += len(encode(line))
-  return (total_code, total_mem, total_encoded)
-
-if __name__ == "__main__":
-  (code, mem, encoded) = accumulate_totals()
-  print "Code:", code
-  print "Memory:", mem
-  print "Encoded:", encoded
-  print "Code - Memory:", code - mem
-  print "Encoded - Code:", encoded - code
+  lines = [line.strip() for line in fileinput.input()]
+  for line in lines:
+    total_code += calc_code_length(line)
+    total_mem += calc_mem_length(line)
+    total_encoded += calc_encoded_length(line)
+  print("Code:", total_code)
+  print("Memory:", total_mem)
+  print("Encoded:", total_encoded)
+  print("Code - Memory:", total_code - total_mem)
+  print("Encoded - Code:", total_encoded - total_code)
