@@ -15,14 +15,15 @@ class Routes:
       self._distances.append([cities[0], cities[1], int(line[1])])
       self._distances.append([cities[1], cities[0], int(line[1])])
     self._cities.sort()
-    self._routes = list(itertools.permutations(self._cities, len(self._cities)))
+    self._build_routes()
 
   def _add_city(self, city):
     if not city in self._cities:
       self._cities.append(city)
 
-  def get_lengths(self):
-    lengths = []
+  def _build_routes(self):
+    self._routes = list(itertools.permutations(self._cities, len(self._cities)))
+    self._lengths = []
     for route in self._routes:
       prev_city = ''
       length = 0
@@ -31,13 +32,17 @@ class Routes:
           if dist[0] == prev_city and dist[1] == city:
             length += dist[2]
         prev_city = city
-      lengths.append(length)
-    lengths.sort()
-    return lengths
+      self._lengths.append(length)
+    self._lengths.sort()
+
+  def get_shortest_length(self):
+    return self._lengths[0]
+
+  def get_longest_length(self):
+    return self._lengths[-1]
 
 if __name__ == "__main__":
   lines = [line.rstrip() for line in fileinput.input()]
   routes = Routes(lines)
-  lengths = routes.get_lengths()
-  print("Min route length: %s" % lengths[0])
-  print("Max route length: %s" % lengths[-1])
+  print("Min route length: %s" % routes.get_shortest_length())
+  print("Max route length: %s" % routes.get_longest_length())
