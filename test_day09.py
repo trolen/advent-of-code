@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import day9
+import day09
 import unittest
 
 class TestDay9(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestDay9(unittest.TestCase):
     lines = ['London to Dublin = 464',
       'London to Belfast = 518',
       'Dublin to Belfast = 141']
-    routes = day9.Routes(lines)
+    routes = day09.Routes(lines)
     self.assertEqual(routes.get_shortest_length(), 605)
     self.assertEqual(routes.get_longest_length(), 982)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import day7
+import day07
 import unittest
 
 class TestDay7(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestDay7(unittest.TestCase):
              'y RSHIFT 2 -> g',
              'NOT x -> h',
              'NOT y -> i']
-    circuit = day7.Circuit(lines)
+    circuit = day07.Circuit(lines)
     circuit.run()
     self.assertEqual(circuit.get('d'), 72)
     self.assertEqual(circuit.get('e'), 507)
