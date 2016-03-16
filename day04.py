@@ -26,4 +26,4 @@ if __name__ == '__main__':
   num, hash_string = find_hash(secret_key, '000000')
   t2 = time.time()
   print('For %s%s -> %s' % (secret_key, num, hash_string))
-  print(' TIme: %s sec' % (t2 - t1))
+  print(' Time: %s sec' % (t2 - t1))
