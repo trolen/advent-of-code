@@ -4,7 +4,7 @@ import day13
 import unittest
 
 class TestDay13(unittest.TestCase):
-  def test_(self):
+  def test_happiness(self):
     lines = ['Alice would gain 54 happiness units by sitting next to Bob.',
              'Alice would lose 79 happiness units by sitting next to Carol.',
              'Alice would lose 2 happiness units by sitting next to David.',
