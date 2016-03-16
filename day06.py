@@ -2,6 +2,7 @@
 
 import fileinput
 import re
+import sys
 
 def parse_line(line):
   pattern = re.compile(r'(?P<cmd>turn on|turn off|toggle)\s(?P<x1>\d+),(?P<y1>\d+)\sthrough\s(?P<x2>\d+),(?P<y2>\d+)')
@@ -48,7 +49,13 @@ def set_lights2(lines):
       light_grid[x][y] += 2
   return grid_sum(light_grid)
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return [line.rstrip() for line in fileinput.input()]
+
 if __name__ == "__main__":
-  lines = [x.rstrip() for x in fileinput.input()]
+  lines = read_input()
   print("Lights lit (method #1): %s" % set_lights1(lines))
   print("Total brightness (method #2): %s" % set_lights2(lines))

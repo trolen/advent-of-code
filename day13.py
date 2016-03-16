@@ -2,6 +2,7 @@
 
 import fileinput
 import itertools
+import sys
 
 guests = []
 happiness = []
@@ -48,8 +49,14 @@ def add_me():
     happiness.append([g, "Me", 0])
   guests.append("Me")
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return [line.rstrip() for line in fileinput.input()]
+
 if __name__ == "__main__":
-  lines = [line.rstrip() for line in fileinput.input()]
+  lines = read_input()
   parse_input(lines)
   print("Happiness: %s" % calc_happiness())
   add_me()

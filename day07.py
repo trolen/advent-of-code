@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import fileinput
+import sys
 
 class Circuit:
   def __init__(self, lines):
@@ -75,8 +76,15 @@ class Circuit:
           return expr[4]
     return None
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return [line.rstrip() for line in fileinput.input()]
+
 if __name__ == '__main__':
-  circuit = Circuit([line for line in fileinput.input()])
+  lines = read_input()
+  circuit = Circuit(lines)
   print("Running circuit...")
   circuit.run()
   value = circuit.get('a')

@@ -2,6 +2,7 @@
 
 import fileinput
 import itertools
+import sys
 
 class Routes:
   def __init__(self, lines):
@@ -41,8 +42,14 @@ class Routes:
   def get_longest_length(self):
     return self._lengths[-1]
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return [line.rstrip() for line in fileinput.input()]
+
 if __name__ == "__main__":
-  lines = [line.rstrip() for line in fileinput.input()]
+  lines = read_input()
   routes = Routes(lines)
   print("Min route length: %s" % routes.get_shortest_length())
   print("Max route length: %s" % routes.get_longest_length())

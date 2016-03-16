@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import fileinput
+import sys
 
 def is_disallowed(line):
   for s in ['ab','cd','pq','xy']:
@@ -38,10 +39,17 @@ def is_nice2(line):
       repeated_letter = True
   return repeated_string and repeated_letter
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return [line.rstrip() for line in fileinput.input()]
+
 if __name__ == "__main__":
   nice1 = 0
   nice2 = 0
-  for line in fileinput.input():
+  lines = read_input()
+  for line in lines:
     if is_nice1(line):
       nice1 += 1
     if is_nice2(line):

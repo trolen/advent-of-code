@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import fileinput
+import sys
 
 class deliverer:
   def __init__(self, houses):
@@ -38,9 +39,13 @@ def year2(data):
     toggle = 1 - toggle
   return len(houses)
 
+def read_input():
+  if len(sys.argv) < 2:
+    print("Input file name missing")
+    sys.exit(1)
+  return ''.join([line.rstrip() for line in fileinput.input()])
+
 if __name__ == "__main__":
-  s = ''
-  for line in fileinput.input():
-    s += line
+  s = read_input()
   print("Year 1, delivered to %s houses" % year1(s))
   print("Year 2, delivered to %s houses" % year2(s))
