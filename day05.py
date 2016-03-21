@@ -2,42 +2,28 @@
 
 import fileinput
 import sys
+import re
 
-def is_disallowed(line):
-  for s in ['ab','cd','pq','xy']:
-    if s in line:
-      return True
-  return False
+def disallowed(line):
+  return re.compile(r'ab|cd|pq|xy').search(line) != None
 
-def walk_string(s):
-  c1 = ''
-  c2 = ''
-  for c in s:
-    yield (c, c1, c2)
-    c2 = c1
-    c1 = c
+def vowel_count(line):
+  return len(re.findall(r'[aeiou]', line))
+
+def double_letter(line):
+  return re.compile(r'([a-z])\1').search(line) != None
 
 def is_nice1(line):
-  if is_disallowed(line):
-    return False
-  vowel_count = 0
-  double_letter = False
-  for (c, c1, c2) in walk_string(line):
-    if c in 'aeiou':
-      vowel_count += 1
-    if c == c1:
-      double_letter = True
-  return vowel_count >= 3 and double_letter
+  return not disallowed(line) and vowel_count(line) >= 3 and double_letter(line)
+
+def repeated_string(line):
+  return re.compile(r'([a-z][a-z]).*\1').search(line) != None
+
+def repeated_letter(line):
+  return re.compile(r'([a-z]).\1').search(line) != None
 
 def is_nice2(line):
-  repeated_letter = False
-  repeated_string = False
-  for (c, c1, c2) in walk_string(line):
-    if c1 != '' and line.count(c1 + c) >= 2:
-      repeated_string = True
-    if c == c2:
-      repeated_letter = True
-  return repeated_string and repeated_letter
+  return repeated_string(line) and repeated_letter(line)
 
 def read_input():
   if len(sys.argv) < 2:
