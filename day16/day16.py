@@ -21,6 +21,22 @@ class Aunts:
       aunts.append(aunt)
     return aunts
 
+  def _analyze1(self, aunt, ticker, key):
+    if aunt[key] == ticker[key]:
+      return True
+    return False
+
+  def _analyze2(self, aunt, ticker, key):
+    if key in ['cats', 'trees']:
+      if aunt[key] > ticker[key]:
+        return True
+    elif key in ['pomeranians', 'goldfish']:
+      if aunt[key] < ticker[key]:
+        return True
+    elif aunt[key] == ticker[key]:
+      return True
+    return False
+
   def analyze_ticker(self, ticker):
     max1 = 0
     aunt1 = ''
@@ -30,16 +46,12 @@ class Aunts:
       tally1 = 0
       tally2 = 0
       for key in ticker.keys():
-        if key in aunt.keys():
-          if key in ['cats', 'trees']:
-            if aunt[key] > ticker[key]:
-              tally2 += 1
-          elif key in ['pomeranians', 'goldfish']:
-            if aunt[key] < ticker[key]:
-              tally2 += 1
-          elif aunt[key] == ticker[key]:
-            tally1 += 1
-            tally2 += 1
+        if key not in aunt.keys():
+          continue
+        if self._analyze1(aunt, ticker, key):
+          tally1 += 1
+        if self._analyze2(aunt, ticker, key):
+          tally2 += 1
       if tally1 > max1:
         max1 = tally1
         aunt1 = aunt['name']
