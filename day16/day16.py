@@ -21,38 +21,32 @@ class Aunts:
       aunts.append(aunt)
     return aunts
 
-  def analyze_ticker1(self, ticker):
-    max_tally = 0
-    aunt_found = ''
+  def analyze_ticker(self, ticker):
+    max1 = 0
+    aunt1 = ''
+    max2 = 0
+    aunt2 = ''
     for aunt in self._aunts:
-      tally = 0
-      for key in ticker.keys():
-        if key in aunt.keys() and aunt[key] == ticker[key]:
-          tally += 1
-      if tally > max_tally:
-        max_tally = tally
-        aunt_found = aunt['name']
-    return aunt_found
-
-  def analyze_ticker2(self, ticker):
-    max_tally = 0
-    aunt_found = ''
-    for aunt in self._aunts:
-      tally = 0
+      tally1 = 0
+      tally2 = 0
       for key in ticker.keys():
         if key in aunt.keys():
           if key in ['cats', 'trees']:
             if aunt[key] > ticker[key]:
-              tally += 1
+              tally2 += 1
           elif key in ['pomeranians', 'goldfish']:
             if aunt[key] < ticker[key]:
-              tally += 1
+              tally2 += 1
           elif aunt[key] == ticker[key]:
-            tally += 1
-      if tally > max_tally:
-        max_tally = tally
-        aunt_found = aunt['name']
-    return aunt_found
+            tally1 += 1
+            tally2 += 1
+      if tally1 > max1:
+        max1 = tally1
+        aunt1 = aunt['name']
+      if tally2 > max2:
+        max2 = tally2
+        aunt2 = aunt['name']
+    return aunt1, aunt2
 
 def read_input():
   if len(sys.argv) < 2:
@@ -66,5 +60,6 @@ if __name__ == "__main__":
   ticker = {'children': 3, 'cats': 7, 'samoyeds': 2, 'pomeranians': 3,
             'akitas': 0, 'vizslas': 0, 'goldfish': 5, 'trees': 3,
             'cars': 2, 'perfumes': 1}
-  print("Found #1: %s" % (aunts.analyze_ticker1(ticker)))
-  print("Found #2: %s" % (aunts.analyze_ticker2(ticker)))
+  aunt1, aunt2 = aunts.analyze_ticker(ticker)
+  print("Found #1: %s" % aunt1)
+  print("Found #2: %s" % aunt2)
