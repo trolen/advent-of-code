@@ -18,10 +18,13 @@ def count_neighbors(grid, x, y):
   return count
 
 def animate_lights(grid, num_steps, corners_on):
-  old_grid = grid
-  new_grid = None
+  if corners_on:
+    grid[0] = '#' + grid[0][1:-1] + '#'
+    grid[-1] = '#' + grid[-1][1:-1] + '#'
   len_x = len(grid)
   len_y = len(grid[0])
+  old_grid = grid
+  new_grid = None
   for n in range(num_steps):
     new_grid = []
     for i in range(len_x):

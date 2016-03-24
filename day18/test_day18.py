@@ -21,7 +21,7 @@ class TestDay18(unittest.TestCase):
              '..#...',
              '#.#..#',
              '####.#']
-    lights = day18.animate_lights(lines, 4, True)
+    lights = day18.animate_lights(lines, 5, True)
     self.assertEqual(day18.count_lights_on(lights), 17)
              
 if __name__ == '__main__':
