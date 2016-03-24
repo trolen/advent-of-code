@@ -3,18 +3,13 @@
 import fileinput
 import sys
 
-def store_eggnog(max_amt, containers):
-  containers.sort(reverse=True)
+def store_eggnog(amt_to_store, containers):
+  if amt_to_store == 0:
+    return 1
   count = 0
-  amt_left = max_amt
   for i in range(len(containers)):
-    amt_left -= containers[i]
-    if amt_left > 0:
-      continue
-    if amt_left == 0:
-      count += 1
-    if amt_left <= 0:
-      amt_left += containers[i]
+    amt = amt_to_store - containers[i]
+    count += store_eggnog(amt, containers[i+1:])
   return count
 
 def read_input():
@@ -25,4 +20,5 @@ def read_input():
 
 if __name__ == "__main__":
   containers = [int(x) for x in read_input()]
+  containers.sort(reverse = True)
   print(store_eggnog(150, containers))
