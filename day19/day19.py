@@ -3,38 +3,36 @@
 import fileinput
 import sys
 
-class Replacements:
+class Molecules:
   def __init__(self, lines):
     self._parse_input(lines)
 
   def _parse_input(self, lines):
     self._replacements = []
-    self._molecule = ''
     for line in lines:
       if len(line) == 0:
         continue
       words = line.split(' => ')
-      if len(words) > 1:
-        self._replacements.append([words[0], words[1]])
-      else:
-        self._molecule = words[0]
+      self._replacements.append([words[0], words[1]])
 
-  def run(self):
+  def calibrate(self, molecule):
     molecules = []
     for repl in self._replacements:
-      n = self._molecule.count(repl[0])
+      n = molecule.count(repl[0])
       p = 0
       while n > 0:
-        p = self._molecule.find(repl[0], p)
-        s = self._molecule[:p]
-        s += self._molecule[p:].replace(repl[0], repl[1], 1)
+        p = molecule.find(repl[0], p)
+        s = molecule[:p]
+        s += molecule[p:].replace(repl[0], repl[1], 1)
         if s not in molecules:
           molecules.append(s)
         n -= 1
         p += 1
     return len(molecules)
-        
 
+  def fabricate(self, molecule):
+    return 0
+        
 def read_input():
   if len(sys.argv) < 2:
     print("Input file name missing")
@@ -43,5 +41,6 @@ def read_input():
 
 if __name__ == "__main__":
   lines = read_input()
-  repl = Replacements(lines)
-  print(repl.run())
+  molecules = Molecules(lines[:-1])
+  print("Calibration: %s" % molecules.calibrate(lines[-1]))
+  print("Fabricate: %s" % molecules.fabricate(lines[-1]))
