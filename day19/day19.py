@@ -15,7 +15,7 @@ class Molecules:
       words = line.split(' => ')
       self._replacements.append([words[0], words[1]])
 
-  def calibrate(self, molecule):
+  def _replacement(self, molecule):
     molecules = []
     for repl in self._replacements:
       n = molecule.count(repl[0])
@@ -28,10 +28,22 @@ class Molecules:
           molecules.append(s)
         n -= 1
         p += 1
-    return len(molecules)
+    return molecules
 
-  def fabricate(self, molecule):
-    return 0
+  def calibrate(self, molecule):
+    return len(self._replacement(molecule))
+
+  def fabricate(self, result):
+    count = 1
+    molecules = self._replacement('e')
+    while result not in molecules:
+      new_molecules = []
+      for molecule in molecules:
+        new_molecules += self._replacement(molecule)
+      molecules = list(set(new_molecules))
+      count += 1
+      print(count, len(molecules))
+    return count
         
 def read_input():
   if len(sys.argv) < 2:
