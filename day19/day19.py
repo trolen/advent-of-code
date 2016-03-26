@@ -24,11 +24,10 @@ class Molecules:
         p = molecule.find(repl[0], p)
         s = molecule[:p]
         s += molecule[p:].replace(repl[0], repl[1], 1)
-        if s not in molecules:
-          molecules.append(s)
+        molecules.append(s)
         n -= 1
-        p += 1
-    return molecules
+        p += len(repl[0])
+    return list(set(molecules))
 
   def calibrate(self, molecule):
     return len(self._replacement(molecule))
@@ -36,10 +35,13 @@ class Molecules:
   def fabricate(self, result):
     count = 1
     molecules = self._replacement('e')
-    while result not in molecules:
+    while len(molecules) > 0 and result not in molecules:
       new_molecules = []
       for molecule in molecules:
         new_molecules += self._replacement(molecule)
+      for molecule in new_molecules:
+        if len(molecule) > len(result):
+          new_molecules.remove(molecule)
       molecules = list(set(new_molecules))
       count += 1
       print(count, len(molecules))
