@@ -3,13 +3,13 @@
 import fileinput
 import re
 import sys
-import numpy
-import pypeg2
+import numpy as np
+from pypeg2 import *
 
-class Coord(pypeg2.List):
+class Coord(List):
   grammar = int, ',', int
 
-class Range(pypeg2.List):
+class Range(List):
   grammar = Coord, 'through', Coord
 
   def slice(self, lights):
@@ -22,7 +22,7 @@ class Range(pypeg2.List):
     l[:] = f(l)
 
 class Toggle:
-  grammar = 'toggle', pypeg2.attr('range', Range)
+  grammar = 'toggle', attr('range', Range)
 
   def part1(self, lights):
     self.range.apply(lights, lambda l: 1 - l)
@@ -31,16 +31,16 @@ class Toggle:
     self.range.apply(lights, lambda l: l + 2)
 
 class TurnOff:
-  grammar = 'turn off', pypeg2.attr('range', Range)
+  grammar = 'turn off', attr('range', Range)
 
   def part1(self, lights):
     self.range.apply(lights, lambda l: 0)
 
   def part2(self, lights):
-    self.range.apply(lights, lambda l: numpy.fmax(l - 1, 0))
+    self.range.apply(lights, lambda l: np.fmax(l - 1, 0))
 
 class TurnOn:
-  grammar = 'turn on', pypeg2.attr('range', Range)
+  grammar = 'turn on', attr('range', Range)
 
   def part1(self, lights):
     self.range.apply(lights, lambda l: 1)
@@ -51,13 +51,13 @@ class TurnOn:
 commands = [Toggle, TurnOff, TurnOn]
 
 def make_grid():
-  return numpy.zeros((1000, 1000), dtype=int)
+  return np.zeros((1000, 1000), dtype=int)
 
 def parse_line(line):
-  return pypeg2.parse(line, commands)
+  return parse(line, commands)
 
 def grid_sum(grid):
-  return numpy.sum(grid)
+  return np.sum(grid)
 
 def read_input():
   if len(sys.argv) < 2:
