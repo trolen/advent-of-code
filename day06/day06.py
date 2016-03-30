@@ -3,51 +3,61 @@
 import fileinput
 import re
 import sys
+import numpy
+import pypeg2
+
+class Coord(pypeg2.List):
+  grammar = int, ',', int
+
+class Range(pypeg2.List):
+  grammar = Coord, 'through', Coord
+
+  def slice(self, lights):
+    x1, y1 = self[0]
+    x2, y2 = self[1]
+    return lights[x1:x2+1, y1:y2+1]
+
+  def apply(self, lights, f):
+    l = self.slice(lights)
+    l[:] = f(l)
+
+class Toggle:
+  grammar = 'toggle', pypeg2.attr('range', Range)
+
+  def part1(self, lights):
+    self.range.apply(lights, lambda l: 1 - l)
+
+  def part2(self, lights):
+    self.range.apply(lights, lambda l: l + 2)
+
+class TurnOff:
+  grammar = 'turn off', pypeg2.attr('range', Range)
+
+  def part1(self, lights):
+    self.range.apply(lights, lambda l: 0)
+
+  def part2(self, lights):
+    self.range.apply(lights, lambda l: numpy.fmax(l - 1, 0))
+
+class TurnOn:
+  grammar = 'turn on', pypeg2.attr('range', Range)
+
+  def part1(self, lights):
+    self.range.apply(lights, lambda l: 1)
+
+  def part2(self, lights):
+    self.range.apply(lights, lambda l: l + 1)
+
+commands = [Toggle, TurnOff, TurnOn]
+
+def make_grid():
+  return numpy.zeros((1000, 1000), dtype=int)
 
 def parse_line(line):
-  pattern = re.compile(r'(?P<cmd>turn on|turn off|toggle)\s(?P<x1>\d+),(?P<y1>\d+)\sthrough\s(?P<x2>\d+),(?P<y2>\d+)')
-  match = pattern.match(line)
-  command = match.group('cmd')
-  x1 = int(match.group('x1'))
-  y1 = int(match.group('y1'))
-  x2 = int(match.group('x2'))
-  y2 = int(match.group('y2'))
-  return (command, x1, y1, x2, y2)
-
-def grid_iter(lines):
-  for line in lines:
-    (command, x1, y1, x2, y2) = parse_line(line)
-    for x in range(x1, x2+1):
-      for y in range(y1, y2+1):
-        yield (command, x, y)
+  return pypeg2.parse(line, commands)
 
 def grid_sum(grid):
-  grid_sum = 0
-  for row in grid:
-    grid_sum += sum(row)
-  return grid_sum
-
-def set_lights1(lines):
-  light_grid = [[0 for x in range(1000)] for x in range(1000)]
-  for (command, x, y) in grid_iter(lines):
-    if command == 'turn off':
-      light_grid[x][y] = 0
-    if command == 'turn on':
-      light_grid[x][y] = 1
-    if command == 'toggle':
-      light_grid[x][y] = 1 - light_grid[x][y]
-  return grid_sum(light_grid)
-
-def set_lights2(lines):
-  light_grid = [[0 for x in range(1000)] for x in range(1000)]
-  for (command, x, y) in grid_iter(lines):
-    if command == 'turn off' and light_grid[x][y] > 0:
-      light_grid[x][y] -= 1
-    if command == 'turn on':
-      light_grid[x][y] += 1
-    if command == 'toggle':
-      light_grid[x][y] += 2
-  return grid_sum(light_grid)
+  return numpy.sum(grid)
 
 def read_input():
   if len(sys.argv) < 2:
@@ -56,6 +66,14 @@ def read_input():
   return [line.rstrip() for line in fileinput.input()]
 
 if __name__ == "__main__":
+  lights1 = make_grid()
+  lights2 = make_grid()
+  
   lines = read_input()
-  print("Lights lit (method #1): %s" % set_lights1(lines))
-  print("Total brightness (method #2): %s" % set_lights2(lines))
+  for line in lines:
+    cmd = parse_line(line)
+    cmd.part1(lights1)
+    cmd.part2(lights2)
+
+  print("Lights lit (part 1): %s" % grid_sum(lights1))
+  print("Total brightness (part 2): %s" % grid_sum(lights2))

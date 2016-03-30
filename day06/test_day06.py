@@ -5,25 +5,32 @@ import unittest
 
 class TestDay6(unittest.TestCase):
   def test_parse_line(self):
-    self.assertEqual(day06.parse_line('turn on 0,0 through 999,999'),
-      ('turn on', 0, 0, 999, 999))
-    self.assertEqual(day06.parse_line('toggle 249,249 through 250,250'),
-      ('toggle', 249, 249, 250, 250))
-    self.assertEqual(day06.parse_line('turn off 250,250 through 749,749'),
-      ('turn off', 250, 250, 749, 749))
+    cmd = day06.parse_line('turn on 0,0 through 999,999')
+    self.assertEqual(type(cmd), day06.TurnOn)
+    self.assertEqual(cmd.range[0], (0, 0))
+    self.assertEqual(cmd.range[1], (999, 999))
+    cmd = day06.parse_line('toggle 50,50 through 100,100')
+    self.assertEqual(type(cmd), day06.Toggle)
+    self.assertEqual(cmd.range[0], (50, 50))
+    self.assertEqual(cmd.range[1], (100, 100))
 
-  def test_set_lights1(self):
-    self.assertEqual(day06.set_lights1(['turn on 0,0 through 999,999']), 1000000)
-    self.assertEqual(day06.set_lights1(['turn on 0,0 through 999,999',
-      'toggle 0,0 through 999,0']), 999000)
-    self.assertEqual(day06.set_lights1(['turn on 0,0 through 499,499',
-      'toggle 249,249 through 250,250']), 249996)
-    self.assertEqual(day06.set_lights1(['turn on 0,0 through 99,99',
-      'turn off 25,25 through 74,74']), 7500)
+  def test_part1(self):
+    lights = day06.make_grid()
+    cmd = day06.parse_line('turn on 0,0 through 999,999')
+    cmd.part1(lights)
+    self.assertEqual(day06.grid_sum(lights), 1000000)
+    cmd = day06.parse_line('turn off 0,0 through 499,499')
+    cmd.part1(lights)
+    self.assertEqual(day06.grid_sum(lights), 750000)
 
-  def test_set_lights2(self):
-    self.assertEqual(day06.set_lights2(['turn on 0,0 through 0,0']), 1)
-    self.assertEqual(day06.set_lights2(['toggle 0,0 through 999,999']), 2000000)
+  def test_part2(self):
+    lights = day06.make_grid()
+    cmd = day06.parse_line('turn on 0,0 through 0,0')
+    cmd.part2(lights)
+    self.assertEqual(day06.grid_sum(lights), 1)
+    cmd = day06.parse_line('toggle 0,0 through 999,999')
+    cmd.part2(lights)
+    self.assertEqual(day06.grid_sum(lights), 2000001)
 
 if __name__ == '__main__':
   unittest.main()
