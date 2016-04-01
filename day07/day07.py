@@ -3,16 +3,35 @@
 import fileinput
 import sys
 
+class Wire:
+  def __init__(self, name, oper, arg1, arg2):
+    self.name = name
+    self.oper = oper
+    self.arg1 = arg1
+    self.arg2 = arg2
+    self._value = None
+
+  def reset(self):
+    self._value = None
+
+  def get(self):
+    return self._value
+
+  def set(self, value):
+    self._value = 0xffff & value
+
 class Circuit:
   def __init__(self, lines):
-    self._operations = ['AND', 'OR', 'NOT', 'XOR', 'LSHIFT', 'RSHIFT']
-    self._circuit = []
+    self._wires = []
+    self._parse_lines(lines)
+    
+  def _parse_lines(self, lines):
     for line in lines:
       expr = line.rstrip().split(' ')
       wire = expr[-1]
-      oper = ''
-      arg1 = ''
-      arg2 = ''
+      oper = None
+      arg1 = None
+      arg2 = None
       n = len(expr)
       if n == 3:
         arg1 = expr[0]
@@ -23,25 +42,25 @@ class Circuit:
         arg1 = expr[0]
         oper = expr[1]
         arg2 = expr[2]
-      self._circuit.append([wire, oper, arg1, arg2, None])
+      self._wires.append(Wire(wire, oper, arg1, arg2))
 
   def reset(self):
-    for expr in self._circuit:
-      expr[4] = None
+    for wire in self._wires:
+      wire.reset()
 
-  def set(self, wire, value):
-    for expr in self._circuit:
-      if wire == expr[0]:
-        expr[4] = value
+  def set(self, name, value):
+    for wire in self._wires:
+      if name == wire.name:
+        wire.set(value)
 
-  def get(self, wire):
-    for expr in self._circuit:
-      if wire == expr[0]:
-        return expr[4]
+  def get(self, name):
+    for wire in self._wires:
+      if name == wire.name:
+        return wire.get()
 
   def run(self):
-    for expr in self._circuit:
-      self._evaluate(expr[0])
+    for wire in self._wires:
+      self._evaluate(wire.name)
 
   def _evaluate(self, s):
     try:
@@ -49,31 +68,26 @@ class Circuit:
       return value
     except:
       pass
-    for expr in self._circuit:
-      if s == expr[0]:
-        oper = expr[1]
-        arg1 = expr[2]
-        arg2 = expr[3]
-        value = expr[4]
-        if value != None:
-          return value
-        if oper == '':
-          value = self._evaluate(arg1)
-        elif oper == 'AND':
-          value = self._evaluate(arg1) & self._evaluate(arg2)
-        elif oper == 'OR':
-          value = self._evaluate(arg1) | self._evaluate(arg2)
-        elif oper == 'NOT':
-          value = ~self._evaluate(arg1)
-        elif oper == 'XOR':
-          value = self._evaluate(arg1) ^ self._evaluate(arg2)
-        elif oper == 'LSHIFT':
-          value = self._evaluate(arg1) << self._evaluate(arg2)
-        elif oper == 'RSHIFT':
-          value = self._evaluate(arg1) >> self._evaluate(arg2)
-        if value != None:
-          expr[4] = 0xffff & value
-          return expr[4]
+    for wire in self._wires:
+      if s == wire.name:
+        if wire.get() is not None:
+          return wire.get()
+        if wire.oper is None:
+          wire.set(self._evaluate(wire.arg1))
+        elif wire.oper == 'AND':
+          wire.set(self._evaluate(wire.arg1) & self._evaluate(wire.arg2))
+        elif wire.oper == 'OR':
+          wire.set(self._evaluate(wire.arg1) | self._evaluate(wire.arg2))
+        elif wire.oper == 'NOT':
+          wire.set(~self._evaluate(wire.arg1))
+        elif wire.oper == 'XOR':
+          wire.set(self._evaluate(wire.arg1) ^ self._evaluate(wire.arg2))
+        elif wire.oper == 'LSHIFT':
+          wire.set(self._evaluate(wire.arg1) << self._evaluate(wire.arg2))
+        elif wire.oper == 'RSHIFT':
+          wire.set(self._evaluate(wire.arg1) >> self._evaluate(wire.arg2))
+        if wire.get() is not None:
+          return wire.get()
     return None
 
 def read_input():
@@ -95,4 +109,4 @@ if __name__ == '__main__':
   circuit.set('b', value)
   print("Running circuit...")
   circuit.run()
-  print("Evaluate a -> %s" % circuit.get('a'))
+  print("a -> %s" % circuit.get('a'))
