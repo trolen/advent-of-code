@@ -4,11 +4,10 @@ import day21
 import unittest
 
 class TestDay21(unittest.TestCase):
-  def test_1(self):
+  def test_play_game(self):
     boss = day21.Player(12, 7, 2)
     player = day21.Player(8, 5, 5)
-    winner = day21.play_game(boss, player)
-    self.assertEqual(winner, 'Player')
+    self.assertTrue(day21.play_game(boss, player))
 
 if __name__ == '__main__':
   unittest.main()
