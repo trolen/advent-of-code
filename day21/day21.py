@@ -9,13 +9,6 @@ class Player:
     self.damage = damage
     self.armor = armor
 
-class Tool:
-  def __init__(self, name, cost, damage, armor):
-    self.name = name
-    self.cost = cost
-    self.damage = damage
-    self.armor = armor
-
 def take_turn(attacker, defender):
   defender.hit_points -= max(1, attacker.damage - defender.armor)
   if defender.hit_points <= 0:
@@ -28,6 +21,13 @@ def play_game(boss, player):
       return True
     if take_turn(boss, player):
       return False
+
+class Tool:
+  def __init__(self, name, cost, damage, armor):
+    self.name = name
+    self.cost = cost
+    self.damage = damage
+    self.armor = armor
 
 WEAPONS = [Tool('Dagger', 8, 4, 0),
            Tool('Shortsword', 10, 5, 0),
@@ -73,12 +73,16 @@ if __name__ == "__main__":
   boss = Player(0, 0, 0)
   player = Player(0, 0, 0)
   costs = []
-  n = 0
   for stats in iter_player_stats():
-    n += 1
     boss.reset(104, 8, 1)
     player.reset(100, stats[1], stats[2])
     if play_game(boss, player):
       costs.append(stats[0])
-  print(len(costs), n)
-  print("Minimum cose: %s" % min(costs))
+  print("Minimum cost to win: %s" % min(costs))
+  costs = []
+  for stats in iter_player_stats():
+    boss.reset(104, 8, 1)
+    player.reset(100, stats[1], stats[2])
+    if not play_game(boss, player):
+      costs.append(stats[0])
+  print("Maximum cost to lose: %s" % max(costs))
