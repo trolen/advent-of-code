@@ -18,15 +18,13 @@ class Group:
 class Packages:
   def __init__(self, weights):
     self._weights = sorted(weights, reverse=True)
-    self._num_groups = 3
-    self._calc_group_weight()
 
-  def _calc_group_weight(self):
+  def _calc_group_weight(self, n_groups):
     n = sum(self._weights)
-    if n % self._num_groups != 0:
-      print("Error calculating group weight: Not evenly divisible by %s" % self._num_groups)
+    if n % n_groups != 0:
+      print("Error calculating group weight: Not evenly divisible by %s" % n_groups)
       sys.exit(1)
-    self._group_weight = int(n / self._num_groups)
+    return int(n / n_groups)
 
   def _find_groups(self, weights, group_wt):
     n = len(weights)
@@ -45,9 +43,10 @@ class Packages:
         groups.append([weights[i]] + g)
     return groups
 
-  def build_groups(self):
+  def build_groups(self, n_groups):
+    group_wt = self._calc_group_weight(n_groups)
     self._groups = []
-    for g in self._find_groups(self._weights, self._group_weight):
+    for g in self._find_groups(self._weights, group_wt):
       self._groups.append(Group(g))
 
   def find_shortest(self):
@@ -69,6 +68,9 @@ def read_input():
 
 if __name__ == "__main__":
   packages = Packages(read_input())
-  packages.build_groups()
+  packages.build_groups(3)
   result = packages.find_shortest()
   print("Quantum Entanglement (part 1): %s" % result.quantum_entanglement)
+  packages.build_groups(4)
+  result = packages.find_shortest()
+  print("Quantum Entanglement (part 2): %s" % result.quantum_entanglement)
