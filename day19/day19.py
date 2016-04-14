@@ -28,16 +28,19 @@ class Molecules:
   def calibrate(self, molecule):
     return len(self._replacement(molecule))
 
+  def _fabricate_impl(self, molecule, result):
+    counts = []
+    for m in self._replacement(molecule):
+      if m == result:
+        counts.append(1)
+      if len(m) <= len(result):
+        counts.append(1 + self._fabricate_impl(m, result))
+    if len(counts) <= 0:
+      return 0
+    return min(counts)
+
   def fabricate(self, result):
-    molecules = [(1,x) for x in self._replacement('e')]
-    while len(molecules) > 0:
-      m = molecules.pop(0)
-      n = m[0] + 1
-      for x in self._replacement(m[1]):
-        if x == result:
-          return n
-        if len(x) < len(result):
-          molecules.insert(0, (n, x))
+    return self._fabricate_impl('e', result)
 
 def read_input():
   if len(sys.argv) < 2:
