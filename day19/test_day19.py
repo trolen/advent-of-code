@@ -14,6 +14,7 @@ class TestDay19(unittest.TestCase):
   
   def test_calibration(self):
     self.assertEqual(self._molecules.calibrate('HOH'), 4)
+    self.assertEqual(self._molecules.calibrate('HOHOHO'), 7)
 
   def test_fabrication(self):
     self.assertEqual(self._molecules.fabricate('HOH'), 3)
