@@ -39,6 +39,50 @@ def supports_tls(s):
     return abba_outside and not abba_inside
 
 
+def is_aba(s):
+    if len(s) != 3:
+        return False
+    if s[0] == s[1]:
+        return False
+    if s[0] == s[2]:
+        return True
+    return False
+
+
+def find_aba(s):
+    result = []
+    if len(s) < 3:
+        return result
+    stop = len(s) - 2
+    for idx in range(stop):
+        s_test = s[idx:idx+3]
+        if is_aba(s_test):
+            result.append(s_test)
+    return result
+
+
+def supports_ssl(s):
+    find_this = '['
+    start = 0
+    end = 0
+    aba_outside = []
+    aba_inside = []
+    while end != -1:
+        end = s.find(find_this, start)
+        result = find_aba(s[start:end if end != -1 else len(s)])
+        if find_this == '[':
+            aba_outside.extend(result)
+        else:
+            aba_inside.extend(result)
+        start = end + 1
+        find_this = ']' if find_this == '[' else '['
+    for aba in aba_outside:
+        bab = aba[1] + aba[0] + aba[1]
+        if bab in aba_inside:
+            return True
+    return False
+
+
 def read_data(filename):
     data = []
     with open(filename, 'rt') as file:
@@ -53,3 +97,8 @@ if __name__ == '__main__':
         if supports_tls(line):
             count += 1
     print('Part One: {0}'.format(count))
+    count = 0
+    for line in data:
+        if supports_ssl(line):
+            count += 1
+    print('Part Two: {0}'.format(count))

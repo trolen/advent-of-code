@@ -17,6 +17,17 @@ class TestDay7(unittest.TestCase):
         self.assertTrue(day07.supports_tls('abba[mnop]qrst'))
         self.assertFalse(day07.supports_tls('abcd[bddb]xyyx'))
 
+    def test_is_aba(self):
+        self.assertTrue(day07.is_aba('aba'))
+        self.assertFalse(day07.is_aba('xyz'))
+
+    def test_find_aba(self):
+        self.assertEqual(day07.find_aba('zazbz'), ['zaz', 'zbz'])
+
+    def test_supports_ssl(self):
+        self.assertTrue(day07.supports_ssl('aba[bab]xyz'))
+        self.assertFalse(day07.supports_ssl('xyz[xyz]xyz'))
+
 
 if __name__ == '__main__':
     unittest.main()
