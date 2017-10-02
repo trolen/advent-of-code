@@ -1,101 +1,117 @@
 #!/usr/bin/env python3
 
-class Player:
-    def __init__(self, hit_points, armor, mana, damage):
-        self.reset(hit_points, armor, mana, damage)
-
-    def reset(self, hit_points, armor, mana, damage):
-        self.hit_points = hit_points
-        self.armor = armor
-        self.mana = mana
-        self.damage = damage
-
 
 class Spell:
-    def __init__(self, name, cost, effect, damage, heal, armor, mana):
+    def __init__(self, name, cost, duration, damage, healing, armor, mana):
         self.name = name
         self.cost = cost
-        self.effect = effect
+        self.duration = duration
         self.damage = damage
-        self.heal = heal
+        self.healing = healing
         self.armor = armor
         self.mana = mana
-        self.timer = 0
 
-    def can_cast(self, wizard):
-        if wizard.mana < self.cost:
-            return False
-        if self.timer > 0:
-            return False
-        return True
 
-    def cast(self, wizard, boss):
-        if not self.can_cast(wizard):
-            return
-        wizard.mana -= self.cost
-        if self.effect > 0:
-            self.timer = self.effect
+SPELLS = [
+    Spell('Magic Missle', 53, 0, 4, 0, 0, 0),
+    Spell('Drain', 73, 0, 2, 2, 0, 0),
+    Spell('Shield', 113, 6, 0, 0, 7, 0),
+    Spell('Poison', 173, 6, 3, 0, 0, 0),
+    Spell('Recharge', 229, 5, 0, 0, 0, 101)
+]
+
+
+class Player:
+    def __init__(self, hit_points, mana, armor=0):
+        self.hit_points = hit_points
+        self.mana = mana
+        self.armor = armor
+
+    def copy(self):
+        return Player(self.hit_points, self.mana, self.armor)
+
+    def can_cast_spells(self, timers):
+        for spell in SPELLS:
+            if self.mana < spell.cost:
+                continue
+            if spell.name in timers:
+                continue
+            yield spell
+
+
+class Boss:
+    def __init__(self, hit_points, damage):
+        self.hit_points = hit_points
+        self.damage = damage
+
+    def copy(self):
+        return Boss(self.hit_points, self.damage)
+
+
+def find_spell(name):
+    for spell in SPELLS:
+        if spell.name == name:
+            return spell
+    return None
+
+
+def play_game(player, boss, timers={}):
+    new_player = {}
+    new_boss = {}
+    new_timers = {}
+
+    def apply_effects():
+        keys = [k for k in new_timers.keys()]
+        for timer in keys:
+            spell = find_spell(timer)
+            new_boss.hit_points -= spell.damage
+            if spell.armor > 0:
+                new_player.armor = spell.armor
+            new_player.mana += spell.mana
+            new_timers[timer] -= 1
+            if new_timers[timer] == 0:
+                if spell.armor > 0:
+                    new_player.armor = 0
+                del new_timers[timer]
+
+    def cast_spell(spell):
+        new_player.mana -= spell.cost
+        if spell.duration > 0:
+            new_timers[spell.name] = spell.duration
         else:
-            if self.damage > 0:
-                boss.hit_points -= self.damage
-            if self.heal > 0:
-                wizard.hit_points += self.heal
-
-    def apply_effect(self, wizard, boss):
-        if self.effect > 0 and self.timer > 0:
-            if self.damage > 0:
-                boss.hit_points -= self.damage
-            if self.armor > 0:
-                wizard.armor = self.armor
-            if self.mana > 0:
-                wizard.mana += self.mana
-            self.timer -= 1
-
-    def cancel_armor_effect(self, wizard):
-        if self.armor > 0 and self.timer <= 0:
-            wizard.armor = 0
+            new_boss.hit_points -= spell.damage
+            new_player.hit_points += spell.healing
 
 
-SPELLS = [Spell('Magic Missle', 53, 0, 4, 0, 0, 0),
-          Spell('Drain', 73, 0, 2, 2, 0, 0),
-          Spell('Shield', 113, 6, 0, 0, 7, 0),
-          Spell('Poison', 173, 6, 3, 0, 0, 0),
-          Spell('Recharge', 229, 5, 0, 0, 0, 101)]
+    def player_wins():
+        return new_player.hit_points > 0 and new_boss.hit_points <= 0
 
+    def boss_wins():
+        return new_player.hit_points <= 0 and new_boss.hit_points > 0
 
-def apply_effects(wizard, boss):
-    for spell in SPELLS:
-        spell.apply_effect(wizard, boss)
-
-
-def cancel_effects(wizard):
-    for spell in SPELLS:
-        spell.cancel_armor_effect(wizard)
-
-
-def wizard_turn(wizard, boss, spell):
-    apply_effects(wizard, boss)
-    if boss.hit_points <= 0:
-        return True
-    cancel_effects(wizard)
-    if spell.can_cast(wizard):
-        spell.cast(wizard, boss)
-    return boss.hit_points <= 0
-
-
-def boss_turn(wizard, boss):
-    apply_effects(wizard, boss)
-    if boss.hit_points <= 0:
-        return False
-    wizard.hit_points -= max(1, boss.damage - wizard.armor)
-    cancel_effects(wizard)
-    return wizard.hit_points <= 0
-
-
-def play_game(wizard, boss):
-    pass
+    player_can_cast_spells = [s for s in player.can_cast_spells(new_timers)]
+    for spell in player_can_cast_spells:
+        new_player = player.copy()
+        new_boss = boss.copy()
+        new_timers = timers.copy()
+        apply_effects()
+        if player_wins():
+            return True, 0
+        cast_spell(spell)
+        if player_wins():
+            return True, spell.cost
+        apply_effects()
+        if player_wins():
+            return True, spell.cost
+        new_player.hit_points -= max(1, new_boss.damage - new_player.armor)
+        if boss_wins():
+            continue
+        player_won, cost = play_game(new_player, new_boss, new_timers)
+        if player_won:
+            return player_won, cost + spell.cost
+    return False, 0
 
 
 if __name__ == "__main__":
-    wizard = Player(50, 0, 500, 0)
-    boss = Player(55, 0, 0, 8)
+    player_won, cost = play_game(Player(50, 500), Boss(55, 8))
+    print('Part One: Player {0}, cost {1}'.format('won' if player_won else 'lost', cost))
