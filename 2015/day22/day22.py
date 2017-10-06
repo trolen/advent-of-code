@@ -56,59 +56,51 @@ def find_spell(name):
 
 
 def play_game(player, boss, timers={}):
-    new_player = {}
-    new_boss = {}
-    new_timers = {}
-
     def apply_effects():
-        keys = [k for k in new_timers.keys()]
+        keys = [k for k in timers.keys()]
         for timer in keys:
             spell = find_spell(timer)
-            new_boss.hit_points -= spell.damage
+            boss.hit_points -= spell.damage
             if spell.armor > 0:
-                new_player.armor = spell.armor
-            new_player.mana += spell.mana
-            new_timers[timer] -= 1
-            if new_timers[timer] == 0:
+                player.armor = spell.armor
+            player.mana += spell.mana
+            timers[timer] -= 1
+            if timers[timer] == 0:
                 if spell.armor > 0:
-                    new_player.armor = 0
-                del new_timers[timer]
+                    player.armor = 0
+                del timers[timer]
 
     def cast_spell(spell):
-        new_player.mana -= spell.cost
+        player.mana -= spell.cost
         if spell.duration > 0:
-            new_timers[spell.name] = spell.duration
+            timers[spell.name] = spell.duration
         else:
-            new_boss.hit_points -= spell.damage
-            new_player.hit_points += spell.healing
+            boss.hit_points -= spell.damage
+            player.hit_points += spell.healing
 
-
-    def player_wins():
-        return new_player.hit_points > 0 and new_boss.hit_points <= 0
-
-    def boss_wins():
-        return new_player.hit_points <= 0 and new_boss.hit_points > 0
-
-    player_can_cast_spells = [s for s in player.can_cast_spells(new_timers)]
+    apply_effects()
+    if boss.hit_points <= 0:
+        return True, 0
+    saved_player = player.copy()
+    saved_boss = boss.copy()
+    saved_timers = timers.copy()
+    player_can_cast_spells = [s for s in player.can_cast_spells(timers)]
     for spell in player_can_cast_spells:
-        new_player = player.copy()
-        new_boss = boss.copy()
-        new_timers = timers.copy()
-        apply_effects()
-        if player_wins():
-            return True, 0
+        player = saved_player.copy()
+        boss =  saved_boss.copy()
+        timers = saved_timers.copy()
         cast_spell(spell)
-        if player_wins():
+        if boss.hit_points <= 0:
             return True, spell.cost
         apply_effects()
-        if player_wins():
+        if boss.hit_points <= 0:
             return True, spell.cost
-        new_player.hit_points -= max(1, new_boss.damage - new_player.armor)
-        if boss_wins():
+        player.hit_points -= max(1, boss.damage - player.armor)
+        if player.hit_points <= 0:
             continue
-        player_won, cost = play_game(new_player, new_boss, new_timers)
+        player_won, cost = play_game(player, boss, timers)
         if player_won:
-            return player_won, cost + spell.cost
+            return True, cost + spell.cost
     return False, 0
 
 
