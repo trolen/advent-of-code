@@ -48,8 +48,9 @@ class Boss:
         return Boss(self.hit_points, self.damage)
 
 
-def play_game(player, boss, timers={}):
+def play_game(player, boss):
     def apply_effects():
+        nonlocal player, boss, timers
         keys = [timer for timer in timers]
         for key in keys:
             spell = SPELLS[key]
@@ -64,6 +65,7 @@ def play_game(player, boss, timers={}):
                 del timers[key]
 
     def cast_spell(key):
+        nonlocal player, boss, timers
         spell = SPELLS[key]
         player.mana -= spell.cost
         if spell.duration > 0:
@@ -72,29 +74,38 @@ def play_game(player, boss, timers={}):
             boss.hit_points -= spell.damage
             player.hit_points += spell.healing
 
-    apply_effects()
-    if boss.hit_points <= 0:
-        return True, 0
-    saved_player = player.copy()
-    saved_boss = boss.copy()
-    saved_timers = timers.copy()
-    for key in saved_player.can_cast_spells(timers):
-        spell = SPELLS[key]
-        player = saved_player.copy()
-        boss =  saved_boss.copy()
-        timers = saved_timers.copy()
-        cast_spell(key)
-        if boss.hit_points <= 0:
-            return True, spell.cost
+    def play_round(spent=0):
+        nonlocal player, boss, timers, winning_costs
         apply_effects()
         if boss.hit_points <= 0:
-            return True, spell.cost
-        player.hit_points -= max(1, boss.damage - player.armor)
-        if player.hit_points <= 0:
-            continue
-        player_won, cost = play_game(player, boss, timers)
-        if player_won:
-            return True, cost + spell.cost
+            winning_costs.append(spent)
+            return
+        saved_player = player.copy()
+        saved_boss = boss.copy()
+        saved_timers = timers.copy()
+        for key in saved_player.can_cast_spells(timers):
+            player = saved_player.copy()
+            boss =  saved_boss.copy()
+            timers = saved_timers.copy()
+            cast_spell(key)
+            spell = SPELLS[key]
+            if boss.hit_points <= 0:
+                winning_costs.append(spent + spell.cost)
+                continue
+            apply_effects()
+            if boss.hit_points <= 0:
+                winning_costs.append(spent + spell.cost)
+                continue
+            player.hit_points -= max(1, boss.damage - player.armor)
+            if player.hit_points <= 0:
+                continue
+            play_round(spent + spell.cost)
+
+    timers = {}
+    winning_costs = []
+    play_round()
+    if len(winning_costs) > 0:
+        return True, min(winning_costs)
     return False, 0
 
 
