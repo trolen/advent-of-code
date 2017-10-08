@@ -29,12 +29,18 @@ class Player:
     def copy(self):
         return Player(self.hit_points, self.mana, self.armor)
 
-    def can_cast_spells(self, timers):
+    def __str__(self):
+        return '({0}, {1}, {2})'.format(self.hit_points, self.mana, self.armor)
+
+    def __repr__(self):
+        return 'Player(hit_points={0}, mana={1}, armor={2})'.format(self.hit_points, self.mana, self.armor)
+
+    def iterate_spells(self, active_spells):
         for key in SPELLS:
             spell = SPELLS[key]
-            if self.mana < spell.cost:
+            if key in active_spells:
                 continue
-            if key in timers:
+            if self.mana < spell.cost:
                 continue
             yield key
 
@@ -47,68 +53,78 @@ class Boss:
     def copy(self):
         return Boss(self.hit_points, self.damage)
 
+    def __str__(self):
+        return '({0}, {1})'.format(self.hit_points, self.damage)
 
-def play_game(player, boss):
-    def apply_effects():
-        nonlocal player, boss, timers
-        keys = [timer for timer in timers]
+    def __repr__(self):
+        return 'Boss(hit_points={0}, damage={1})'.format(self.hit_points, self.damage)
+
+
+def simulate_game(player, boss):
+    def apply_active_spells():
+        nonlocal player, boss, active_spells
+        keys = [key for key in active_spells]
         for key in keys:
             spell = SPELLS[key]
             boss.hit_points -= spell.damage
             if spell.armor > 0:
                 player.armor = spell.armor
             player.mana += spell.mana
-            timers[key] -= 1
-            if timers[key] == 0:
+            active_spells[key] -= 1
+            if active_spells[key] == 0:
                 if spell.armor > 0:
                     player.armor = 0
-                del timers[key]
+                del active_spells[key]
 
     def cast_spell(key):
-        nonlocal player, boss, timers
+        nonlocal player, boss, active_spells
         spell = SPELLS[key]
         player.mana -= spell.cost
         if spell.duration > 0:
-            timers[key] = spell.duration
+            active_spells[key] = spell.duration
         else:
             boss.hit_points -= spell.damage
             player.hit_points += spell.healing
 
+    def set_min_spent(value):
+        nonlocal min_spent
+        if min_spent is None or value < min_spent:
+            min_spent = value
+            print('Min spent: {0}'.format(min_spent))
+
     def play_round(spent=0):
-        nonlocal player, boss, timers, winning_costs
-        apply_effects()
+        nonlocal player, boss, active_spells, min_spent
+        apply_active_spells()
         if boss.hit_points <= 0:
-            winning_costs.append(spent)
+            set_min_spent(spent)
             return
         saved_player = player.copy()
         saved_boss = boss.copy()
-        saved_timers = timers.copy()
-        for key in saved_player.can_cast_spells(timers):
+        saved_active_spells = active_spells.copy()
+        for key in saved_player.iterate_spells(active_spells):
             player = saved_player.copy()
             boss =  saved_boss.copy()
-            timers = saved_timers.copy()
+            active_spells = saved_active_spells.copy()
             cast_spell(key)
             spell = SPELLS[key]
             if boss.hit_points <= 0:
-                winning_costs.append(spent + spell.cost)
+                set_min_spent(spent + spell.cost)
                 continue
-            apply_effects()
+            apply_active_spells()
             if boss.hit_points <= 0:
-                winning_costs.append(spent + spell.cost)
+                set_min_spent(spent + spell.cost)
                 continue
             player.hit_points -= max(1, boss.damage - player.armor)
             if player.hit_points <= 0:
                 continue
             play_round(spent + spell.cost)
 
-    timers = {}
-    winning_costs = []
+    active_spells = {}
+    min_spent = None
     play_round()
-    if len(winning_costs) > 0:
-        return True, min(winning_costs)
-    return False, 0
+    return min_spent
 
 
 if __name__ == "__main__":
-    player_won, cost = play_game(Player(50, 500), Boss(55, 8))
-    print('Part One: Player {0}, cost {1}'.format('won' if player_won else 'lost', cost))
+    spent = simulate_game(Player(50, 500), Boss(55, 8))
+    print('Part One: Player {0}, cost {1}'.format('won' if spent is not None else 'lost', spent))
