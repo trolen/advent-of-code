@@ -61,11 +61,12 @@ class Boss:
 
 
 class Simulator:
-    def __init__(self, player, boss):
+    def __init__(self, player, boss, difficulty=0):
         self._player = player
         self._boss = boss
         self._active_spells = {}
         self._min_spent = None
+        self._difficulty = difficulty
 
     def _apply_active_spells(self):
         keys = [key for key in self._active_spells]
@@ -93,9 +94,12 @@ class Simulator:
     def _set_min_spent(self, value):
         if self._min_spent is None or value < self._min_spent:
             self._min_spent = value
-            print('Min spent: {0}'.format(self._min_spent))
 
     def _play_round(self, spent=0):
+        if self._difficulty > 0:
+            self._player.hit_points -= 1
+            if self._player.hit_points <= 0:
+                return
         self._apply_active_spells()
         if self._boss.hit_points <= 0:
             self._set_min_spent(spent)
@@ -109,6 +113,8 @@ class Simulator:
             self._active_spells = saved_active_spells.copy()
             self._cast_spell(key)
             spell = SPELLS[key]
+            if self._min_spent is not None and (spent + spell.cost) > self._min_spent:
+                continue
             if self._boss.hit_points <= 0:
                 self._set_min_spent(spent + spell.cost)
                 continue
@@ -130,3 +136,6 @@ if __name__ == "__main__":
     simulator = Simulator(Player(50, 500), Boss(55, 8))
     spent = simulator.run()
     print('Part One: Player {0}, cost {1}'.format('won' if spent is not None else 'lost', spent))
+    simulator = Simulator(Player(50, 500), Boss(55, 8), 1)
+    spent = simulator.run()
+    print('Part Two: Player {0}, cost {1}'.format('won' if spent is not None else 'lost', spent))
