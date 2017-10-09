@@ -60,71 +60,73 @@ class Boss:
         return 'Boss(hit_points={0}, damage={1})'.format(self.hit_points, self.damage)
 
 
-def simulate_game(player, boss):
-    def apply_active_spells():
-        nonlocal player, boss, active_spells
-        keys = [key for key in active_spells]
+class Simulator:
+    def __init__(self, player, boss):
+        self._player = player
+        self._boss = boss
+        self._active_spells = {}
+        self._min_spent = None
+
+    def _apply_active_spells(self):
+        keys = [key for key in self._active_spells]
         for key in keys:
             spell = SPELLS[key]
-            boss.hit_points -= spell.damage
+            self._boss.hit_points -= spell.damage
             if spell.armor > 0:
-                player.armor = spell.armor
-            player.mana += spell.mana
-            active_spells[key] -= 1
-            if active_spells[key] == 0:
+                self._player.armor = spell.armor
+            self._player.mana += spell.mana
+            self._active_spells[key] -= 1
+            if self._active_spells[key] == 0:
                 if spell.armor > 0:
-                    player.armor = 0
-                del active_spells[key]
+                    self._player.armor = 0
+                del self._active_spells[key]
 
-    def cast_spell(key):
-        nonlocal player, boss, active_spells
+    def _cast_spell(self, key):
         spell = SPELLS[key]
-        player.mana -= spell.cost
+        self._player.mana -= spell.cost
         if spell.duration > 0:
-            active_spells[key] = spell.duration
+            self._active_spells[key] = spell.duration
         else:
-            boss.hit_points -= spell.damage
-            player.hit_points += spell.healing
+            self._boss.hit_points -= spell.damage
+            self._player.hit_points += spell.healing
 
-    def set_min_spent(value):
-        nonlocal min_spent
-        if min_spent is None or value < min_spent:
-            min_spent = value
-            print('Min spent: {0}'.format(min_spent))
+    def _set_min_spent(self, value):
+        if self._min_spent is None or value < self._min_spent:
+            self._min_spent = value
+            print('Min spent: {0}'.format(self._min_spent))
 
-    def play_round(spent=0):
-        nonlocal player, boss, active_spells, min_spent
-        apply_active_spells()
-        if boss.hit_points <= 0:
-            set_min_spent(spent)
+    def _play_round(self, spent=0):
+        self._apply_active_spells()
+        if self._boss.hit_points <= 0:
+            self._set_min_spent(spent)
             return
-        saved_player = player.copy()
-        saved_boss = boss.copy()
-        saved_active_spells = active_spells.copy()
-        for key in saved_player.iterate_spells(active_spells):
-            player = saved_player.copy()
-            boss =  saved_boss.copy()
-            active_spells = saved_active_spells.copy()
-            cast_spell(key)
+        saved_player = self._player.copy()
+        saved_boss = self._boss.copy()
+        saved_active_spells = self._active_spells.copy()
+        for key in saved_player.iterate_spells(self._active_spells):
+            self._player = saved_player.copy()
+            self._boss =  saved_boss.copy()
+            self._active_spells = saved_active_spells.copy()
+            self._cast_spell(key)
             spell = SPELLS[key]
-            if boss.hit_points <= 0:
-                set_min_spent(spent + spell.cost)
+            if self._boss.hit_points <= 0:
+                self._set_min_spent(spent + spell.cost)
                 continue
-            apply_active_spells()
-            if boss.hit_points <= 0:
-                set_min_spent(spent + spell.cost)
+            self._apply_active_spells()
+            if self._boss.hit_points <= 0:
+                self._set_min_spent(spent + spell.cost)
                 continue
-            player.hit_points -= max(1, boss.damage - player.armor)
-            if player.hit_points <= 0:
+            self._player.hit_points -= max(1, self._boss.damage - self._player.armor)
+            if self._player.hit_points <= 0:
                 continue
-            play_round(spent + spell.cost)
+            self._play_round(spent + spell.cost)
 
-    active_spells = {}
-    min_spent = None
-    play_round()
-    return min_spent
+    def run(self):
+        self._play_round()
+        return self._min_spent
 
 
 if __name__ == "__main__":
-    spent = simulate_game(Player(50, 500), Boss(55, 8))
+    simulator = Simulator(Player(50, 500), Boss(55, 8))
+    spent = simulator.run()
     print('Part One: Player {0}, cost {1}'.format('won' if spent is not None else 'lost', spent))
