@@ -29,12 +29,6 @@ class Player:
     def copy(self):
         return Player(self.hit_points, self.mana, self.armor)
 
-    def __str__(self):
-        return '({0}, {1}, {2})'.format(self.hit_points, self.mana, self.armor)
-
-    def __repr__(self):
-        return 'Player(hit_points={0}, mana={1}, armor={2})'.format(self.hit_points, self.mana, self.armor)
-
     def iterate_spells(self, active_spells):
         for key in SPELLS:
             spell = SPELLS[key]
@@ -52,12 +46,6 @@ class Boss:
 
     def copy(self):
         return Boss(self.hit_points, self.damage)
-
-    def __str__(self):
-        return '({0}, {1})'.format(self.hit_points, self.damage)
-
-    def __repr__(self):
-        return 'Boss(hit_points={0}, damage={1})'.format(self.hit_points, self.damage)
 
 
 class Simulator:
