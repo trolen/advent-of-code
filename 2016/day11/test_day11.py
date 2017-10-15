@@ -12,6 +12,10 @@ class TestDay11(unittest.TestCase):
             'The third floor contains a lithium generator.',
             'The fourth floor contains nothing relevant.'
         ]
+        self._sim = day11.Simulator(self._input)
+
+    def test_1(self):
+        self.assertEqual(self._sim.play_game(), 11)
 
 
 if __name__ == '__main__':
