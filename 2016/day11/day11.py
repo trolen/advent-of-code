@@ -1,11 +1,5 @@
 #! /usr/bin/env python3
 
-class Component:
-    def __init__(self, element, type):
-        self.element = element[:2].upper()
-        self.type = type[0].upper()
-
-
 class GameState:
     def __init__(self, steps, elevator, floors):
         self.steps = steps
@@ -14,10 +8,10 @@ class GameState:
         self.min_floor = self._min_floor()
 
     def _min_floor(self):
-        for idx in range(4):
-            if len(self.floors[idx]) > 0:
+        for idx, floor in enumerate(self.floors):
+            if len(floor) > 0:
                 return idx
-        return 4
+        return None
 
     def copy(self):
         return GameState(self.steps, self.elevator, [[comp for comp in flr] for flr in self.floors])
@@ -29,12 +23,12 @@ class GameState:
 
     def iterate_microchips(self, floor):
         for component in floor:
-            if component.type == 'M':
+            if component[-1] == 'M':
                 yield component
 
     def iterate_generators(self, floor):
         for component in floor:
-            if component.type == 'G':
+            if component[-1] == 'G':
                 yield component
 
     def is_good(self):
@@ -43,7 +37,7 @@ class GameState:
                 non_matching_generator = False
                 matching_generator = False
                 for generator in self.iterate_generators(floor):
-                    if chip.element == generator.element:
+                    if chip[:2] == generator[:2]:
                         matching_generator = True
                         break
                     else:
@@ -61,7 +55,7 @@ class GameState:
 
 class Simulator:
     def __init__(self, data):
-        self._game_states = [GameState(0, 0, self._parse_data(data))]
+        self._open_states = [GameState(0, 0, self._parse_data(data))]
         self._min_steps = 999999
 
     def _parse_data(self, data):
@@ -77,7 +71,7 @@ class Simulator:
             if word == 'nothing':
                 return []
             if word[:9] == 'generator' or word[:9] == 'microchip':
-                result.append(Component(words[idx - 1], word))
+                result.append(words[idx - 1][:2].upper() + word[0].upper())
         return result
 
     def _set_min_steps(self, value):
@@ -119,7 +113,7 @@ class Simulator:
 
     def _play_round(self):
         new_states = []
-        for current_state in self._game_states:
+        for current_state in self._open_states:
             if current_state.steps >= self._min_steps:
                 continue
             for direction in range(-1, 2, 2):
@@ -139,10 +133,10 @@ class Simulator:
                     states = self._try_moving_one(current_state, new_elevator)
                 if len(states) > 0:
                     new_states += states
-        self._game_states = new_states
+        self._open_states = new_states
 
     def play_game(self):
-        while len(self._game_states) > 0:
+        while len(self._open_states) > 0:
             self._play_round()
         return self._min_steps
 
