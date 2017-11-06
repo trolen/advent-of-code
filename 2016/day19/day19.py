@@ -2,36 +2,39 @@
 
 class ElfCircle:
     def __init__(self, num_elves):
-        self._elves = []
-        for elf in range(1, num_elves + 1):
-            self._elves.append((elf, 1))
+        self._elves = [1] * num_elves
+        self._num_elves = num_elves
 
     def _next_elf(self, idx):
-        return (idx + 1) % len(self._elves)
+        while True:
+            idx = (idx + 1) % len(self._elves)
+            if self._elves[idx] > 0:
+                break
+        return idx
 
     def _across_from(self, idx):
-        n_elves = len(self._elves)
-        return (idx + (n_elves // 2)) % n_elves
+        n_inc = self._num_elves // 2
+        for _ in range(n_inc):
+            idx = self._next_elf(idx)
+        return idx
 
     def _steal_gifts(self, idx, steal_across=False):
         if steal_across:
             steal_idx = self._across_from(idx)
         else:
             steal_idx = self._next_elf(idx)
-        cur_elf, value = self._elves[idx]
-        value += self._elves[steal_idx][1]
-        self._elves[idx] = (cur_elf, value)
-        del self._elves[steal_idx]
-        return idx - 1 if steal_idx < idx else idx
-
+        self._elves[idx] += self._elves[steal_idx]
+        self._elves[steal_idx] = 0
+        self._num_elves -= 1
 
     def play_game(self, steal_across=False):
-        idx = -1
-        n_elves = len(self._elves)
-        while n_elves > 1:
-            idx = self._steal_gifts((idx + 1) % n_elves, steal_across)
-            n_elves = len(self._elves)
-        return self._elves[0][0]
+        idx = 0
+        while True:
+            self._steal_gifts(idx, steal_across)
+            if self._num_elves == 1:
+                break
+            idx = self._next_elf(idx)
+        return idx + 1
 
 
 if __name__ == '__main__':
