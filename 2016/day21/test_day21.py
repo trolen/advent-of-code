@@ -20,6 +20,9 @@ class TestDay21(unittest.TestCase):
     def test_scramble(self):
         self.assertEqual('decab', self._scrambler.scramble('abcde'))
 
+    def test_unscramble(self):
+        self.assertEqual('abcde', self._scrambler.unscramble('decab'))
+
 
 if __name__ == '__main__':
     unittest.main()

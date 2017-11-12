@@ -5,6 +5,16 @@ class Scrambler:
         self._instructions = instructions
         self._word = ''
 
+    def _build_shift_tables(self):
+        l = len(self._word)
+        self._shift_scramble = {}
+        self._shift_unscramble = {}
+        for pos in range(l):
+            shift = pos + (2 if pos >= 4 else 1)
+            new_pos = (pos + shift) % l
+            self._shift_scramble[pos] = shift
+            self._shift_unscramble[new_pos] = -shift
+
     def _swap(self, x, y):
         i1 = min(x, y)
         i2 = max(x, y)
@@ -20,7 +30,7 @@ class Scrambler:
         if steps > 0:
             steps = l - (steps % l)
         elif steps < 0:
-            steps = -steps
+            steps = -steps % l
         s = self._word + self._word
         self._word = s[steps:steps+l]
 
@@ -37,9 +47,14 @@ class Scrambler:
         s = self._word[:x] + self._word[x+1:]
         self._word = s[:y] + c + s[y:]
 
-    def _perform_instructions(self, word):
+    def _perform_instructions(self, word, unscramble=False):
         self._word = word
-        for instruction in self._instructions:
+        self._build_shift_tables()
+        directions = {}
+        directions['left'] = 1 if unscramble else -1
+        directions['right'] = -1 if unscramble else 1
+        increment = -1 if unscramble else 1
+        for instruction in self._instructions[::increment]:
             terms = instruction.split()
             if terms[0] == 'swap':
                 if terms[1] == 'position':
@@ -52,12 +67,12 @@ class Scrambler:
                 continue
             if terms[0] == 'rotate':
                 if terms[1] == 'based':
-                    i = self._word.find(terms[-1])
-                    steps = i + (2 if i >= 4 else 1)
+                    if unscramble:
+                        steps = self._shift_unscramble[self._word.find(terms[-1])]
+                    else:
+                        steps = self._shift_scramble[self._word.find(terms[-1])]
                 else:
-                    steps = int(terms[2])
-                    if terms[1] == 'left':
-                        steps = -steps
+                    steps = int(terms[2]) * directions[terms[1]]
                 self._rotate(steps)
                 continue
             if terms[0] == 'reverse':
@@ -68,12 +83,18 @@ class Scrambler:
             if terms[0] == 'move':
                 x = int(terms[2])
                 y = int(terms[-1])
-                self._move(x, y)
+                if unscramble:
+                    self._move(y, x)
+                else:
+                    self._move(x, y)
                 continue
         return self._word
 
     def scramble(self, word):
         return self._perform_instructions(word)
+
+    def unscramble(self, word):
+        return self._perform_instructions(word, unscramble=True)
 
 
 def read_data(filename):
@@ -84,5 +105,4 @@ if __name__ == '__main__':
     data = read_data('input.txt')
     scrambler = Scrambler(data)
     print('Part One: {0}'.format(scrambler.scramble('abcdefgh')))
-    #print('Part Two: {0}'.format(scrambler.unscramble('fbgdceah')))
-    #print('Part Two: {0}'.format(scrambler.unscramble('cbeghdaf')))
+    print('Part Two: {0}'.format(scrambler.unscramble('fbgdceah')))
