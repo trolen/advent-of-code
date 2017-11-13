@@ -42,6 +42,18 @@ class Cluster:
                 count += self._count_viable_nodes_for_node(x, y)
         return count
 
+    def show_grid(self):
+        max_y = max(self._grid.keys())
+        max_x = max(self._grid[0].keys())
+        for y in range(max_y + 1):
+            print('{0:02}'.format(y), end='')
+            for x in range(max_x + 1):
+                node = self._grid[y][x]
+                used = node['used']
+                avail = node['avail']
+                print(' {0:03}/{1:02}'.format(used,avail), end='')
+            print()
+
 
 def read_data(filename):
     with open(filename, 'rt') as file:
@@ -52,3 +64,4 @@ if __name__ == '__main__':
     data = read_data('input.txt')
     cluster = Cluster(data)
     print('Part One: {0}'.format(cluster.count_viable_nodes()))
+    cluster.show_grid()
