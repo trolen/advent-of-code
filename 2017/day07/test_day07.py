@@ -25,6 +25,9 @@ class TestDay7(unittest.TestCase):
     def test_get_root(self):
         self.assertEqual('tknk', self._towers.get_root())
 
+    def test_balance(self):
+        self.assertEqual(60, self._towers.balance())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+from collections import Counter
+
 class Towers:
     def __init__(self, data):
         self._data = data
@@ -58,6 +60,39 @@ class Towers:
     def get_root(self):
         return self._root
 
+    def _find_unbalanced(self):
+        result = None
+        for t in self._towers:
+            if not t['balanced']:
+                children_balanced = True
+                for c in t['children']:
+                    node = self._find_node(c)
+                    children_balanced = children_balanced and node['balanced']
+                if children_balanced:
+                    result = t
+                    break
+        return result
+
+    def _calc_adjustment(self, parent):
+        counter = Counter(parent['wt_children'].values())
+        child_adjust = None
+        wt_adjust = 0
+        wt_target = 0
+        for child in parent['wt_children']:
+            wt = parent['wt_children'][child]
+            if counter[wt] == 1:
+                wt_adjust = wt
+                child_adjust = child
+            else:
+                wt_target = wt
+        return (child_adjust, wt_target - wt_adjust)
+
+    def balance(self):
+        node = self._find_unbalanced()
+        child_name, adjustment = self._calc_adjustment(node)
+        child = self._find_node(child_name)
+        return child['weight'] + adjustment
+
 
 def read_data(filename):
     with open(filename, 'rt') as file:
@@ -68,3 +103,4 @@ if __name__ == '__main__':
     data = read_data('input.txt')
     towers = Towers(data)
     print('Part One: {0}'.format(towers.get_root()))
+    print('Part Two: {0}'.format(towers.balance()))
