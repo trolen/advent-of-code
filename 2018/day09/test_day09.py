@@ -4,7 +4,7 @@ import day09
 import unittest
 
 
-class TestDay08(unittest.TestCase):
+class TestDay09(unittest.TestCase):
     def test_part1(self):
         score = day09.play_game('9 players; last marble is worth 25 points')
         self.assertEqual(32, score)
