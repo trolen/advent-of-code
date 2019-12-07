@@ -4,7 +4,7 @@ import unittest
 import day02
 
 
-class TestDay01(unittest.TestCase):
+class TestDay02(unittest.TestCase):
     def test_part1(self):
         data = day02.run_intcode('1,0,0,0,99')
         self.assertEqual([2,0,0,0,99], data)
