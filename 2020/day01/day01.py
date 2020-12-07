@@ -7,26 +7,22 @@ def read_data(filename):
 def parse_data(raw_data):
   return [int(item) for item in raw_data]
 
-def do_part1(entries):
-  for i in range(0, len(entries) - 1):
+def do_part1(entries, start = 0, target = 2020):
+  for i in range(start, len(entries) - 1):
     x = entries[i]
     for j in range(i + 1, len(entries)):
       y = entries[j]
       n = x + y
-      if n == 2020:
+      if n == target:
         return x * y
   return 0
 
 def do_part2(entries):
   for i in range(0, len(entries) - 2):
     x = entries[i]
-    for j in range(i + 1, len(entries) - 1):
-      y = entries[j]
-      for k in range(j + 1, len(entries)):
-        z = entries[k]
-        n = x + y + z
-        if n == 2020:
-          return x * y * z
+    result = do_part1(entries, i + 1, 2020 - x)
+    if result > 0:
+      return x * result
   return 0
 
 def execute():

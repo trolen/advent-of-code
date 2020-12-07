@@ -13,6 +13,5 @@ class TestDay01(unittest.TestCase):
         entries = [1721, 979, 366, 299, 675, 1456]
         self.assertEqual(241861950, day01.do_part2(entries))
 
-
 if __name__ == '__main__':
     unittest.main()
