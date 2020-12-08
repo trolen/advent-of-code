@@ -4,7 +4,7 @@ import unittest
 import day04
 
 
-class TestDay02(unittest.TestCase):
+class TestDay04(unittest.TestCase):
     def setUp(self):
         self.raw_data = [
             'ecl:gry pid:860033327 eyr:2020 hcl:#fffffd',

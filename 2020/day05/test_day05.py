@@ -4,7 +4,7 @@ import unittest
 import day05
 
 
-class TestDay02(unittest.TestCase):
+class TestDay05(unittest.TestCase):
     def setUp(self):
         self.raw_data = [
             'FBFBBFFRLR',
