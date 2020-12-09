@@ -4,7 +4,7 @@ import unittest
 import day08
 
 
-class TestDay07(unittest.TestCase):
+class TestDay08(unittest.TestCase):
     def setUp(self):
         pass
 
