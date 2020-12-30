@@ -17,8 +17,7 @@ class TestDay17(unittest.TestCase):
         self.assertEqual(112, self.app.do_part1())
 
     def test_part2(self):
-        pass
-        #self.assertEqual(848, self.app.do_part2())
+        self.assertEqual(848, self.app.do_part2())
 
 
 if __name__ == '__main__':
