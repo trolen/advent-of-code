@@ -1,53 +1,69 @@
 #! /usr/bin/env python3
 
-from parsimonious.grammar import Grammar
-from parsimonious import ParseError
-import re
-
 
 class Application:
     def __init__(self, raw_data):
         self._parse_data(raw_data)
 
+    def _parse_rule(self, line):
+        items = line.split(': ')
+        rule_no = int(items[0])
+        value = items[1]
+        if value.startswith('"'):
+            self._rules[rule_no] = value[1]
+            return
+        options = []
+        for seq in value.split(' | '):
+            rules = []
+            for rule in seq.split(' '):
+                rules.append(int(rule))
+            options.append(rules)
+        self._rules[rule_no] = options
+
     def _parse_data(self, raw_data):
         idx = raw_data.index('')
+        rule_lines = raw_data[:idx]
         self._rules = {}
-        for line in raw_data[:idx]:
-            rule = int(line.split(':')[0])
-            self._rules[rule] = line
-        self._messages = raw_data[idx+1:]
+        for line in rule_lines:
+            self._parse_rule(line)
+        self._messages = raw_data[idx + 1:]
 
-    def _convert(self, line):
-        line = line.replace(':', ' =')
-        line = re.sub(r'(\d+)', r'R\1', line)
-        line = re.sub(r'= (.*) \| (.*)$', r'= ((\1) / (\2))', line)
-        return line
+    def _match(self, message, idx, rule):
+        if idx >= len(message):
+            return []
+        value = self._rules[rule]
+        if type(value) == str:
+            if value == message[idx]:
+                return [idx + 1]
+            return []
+        result = []
+        for seq in value:
+            try_indexes = [idx]
+            for rnum in seq:
+                new_indexes = []
+                for n in try_indexes:
+                    new_indexes += self._match(message, n, rnum)
+                try_indexes = new_indexes
+            result += try_indexes
+        return result
 
-    def _build_grammar(self):
-        sorted_keys = sorted(self._rules.keys())
-        sorted_rules = [self._rules[key] for key in sorted_keys]
-        converted_rules = '\n'.join([self._convert(r) for r in sorted_rules])
-        self._grammar = Grammar(converted_rules)
-
-    def _parse_message(self, message):
-        try:
-            self._grammar.parse(message)
-        except ParseError:
-            return False
-        return True
-
-    def _parse_messages(self):
-        return sum(map(self._parse_message, self._messages))
+    def _match_messages(self):
+        result = 0
+        for message in self._messages:
+            a = self._match(message, 0, 0)
+            for n in a:
+                if n == len(message):
+                    result += 1
+                    break
+        return result
 
     def do_part1(self):
-        self._build_grammar()
-        return self._parse_messages()
+        return self._match_messages()
 
     def do_part2(self):
-        self._rules[8] = '8: 42 | 42 8'
-        self._rules[11] = '11: 42 31 | 42 11 31'
-        self._build_grammar()
-        return self._parse_messages()
+        self._parse_rule('8: 42 | 42 8')
+        self._parse_rule('11: 42 31 | 42 11 31')
+        return self._match_messages()
 
     def execute(self):
         print('Part 1 result:', self.do_part1())
