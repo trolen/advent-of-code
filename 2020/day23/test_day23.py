@@ -15,7 +15,7 @@ class TestDay23(unittest.TestCase):
         self.assertEqual('67384529', self.app.do_part1())
 
     def test_part2(self):
-        self.assertEqual(0, self.app.do_part2())
+        self.assertEqual(149245887792, self.app.do_part2())
 
 
 if __name__ == '__main__':

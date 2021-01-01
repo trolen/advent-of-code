@@ -1,93 +1,113 @@
 #! /usr/bin/env python3
 
 
-class Application:
-    def __init__(self, raw_data):
-        self._parse_data(raw_data)
+class Cup:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
 
-    def _parse_data(self, raw_data):
-        line = raw_data[0]
-        self._starting_cups = [int(ch) for ch in line]
-        self._cups = self._starting_cups[:]
-        self._current_cup = 0
-        self._min = min(self._cups)
-        self._max = max(self._cups)
 
-    def _pick_up(self, num):
-        current_value = self._cups[self._current_cup]
-        start = self._current_cup + 1
-        end = start + num
-        l = len(self._cups)
-        picked_up = []
-        for i in range(start, end):
-            picked_up.append(self._cups[i % l])
-        for n in picked_up:
-            self._cups.remove(n)
-        self._current_cup = self._cups.index(current_value)
-        return picked_up
+class Cups:
+    def __init__(self):
+        self._nodes_map = {}
+        self.head = None
+        self.tail = None
+        self.min = None
+        self.max = None
 
-    def _normalize_cup_value(self, value):
-        if value < self._min:
-            return self._max
-        if value > self._max:
-            return self._min
+    def append(self, value):
+        self.min = value if self.min is None else min(self.min, value)
+        self.max = value if self.max is None else max(self.max, value)
+        cup = Cup(value)
+        self._nodes_map[value] = cup
+        if self.head is None:
+            self.head = cup
+        cup.next = self.head
+        if self.tail is not None:
+            self.tail.next = cup
+        self.tail = cup
+
+    def _pickup(self):
+        self._picked_up = []
+        for i in range(0, 3):
+            cup = self.head.next
+            self.head.next = cup.next
+            cup.next = None
+            self._picked_up.append(cup)
+
+    def _normalize_value(self, value):
+        if value < self.min:
+            return self.max
         return value
 
+    def _is_picked_up(self, value):
+        for cup in self._picked_up:
+            if cup.value == value:
+                return True
+        return False
+
+    def _find(self, value):
+        return self._nodes_map[value]
+
     def _find_destination(self):
-        dest_value = self._normalize_cup_value(self._cups[self._current_cup] - 1)
-        while dest_value not in self._cups:
-            dest_value = self._normalize_cup_value(dest_value - 1)
-        return self._cups.index(dest_value)
+        dest_value = self._normalize_value(self.head.value - 1)
+        while self._is_picked_up(dest_value):
+            dest_value = self._normalize_value(dest_value - 1)
+        return self._find(dest_value)
 
-    def _do_move(self):
-        picked_up = self._pick_up(3)
-        destination = self._find_destination()
-        current_value = self._cups[self._current_cup]
-        if destination + 1 > len(self._cups) - 1:
-            self._cups = self._cups + picked_up
-        else:
-            n = destination + 1
-            self._cups[n:n] = picked_up
-        self._current_cup = (self._cups.index(current_value) + 1) % len(self._cups)
+    def move_cups(self):
+        self._pickup()
+        dest = self._find_destination()
+        for cup in self._picked_up[::-1]:
+            cup.next = dest.next
+            dest.next = cup
+        self.tail = self.head
+        self.head = self.head.next
 
-    def _do_moves(self, num):
-        for i in range(0, num):
-            self._do_move()
-
-    def _cups_as_string(self):
-        idx = self._cups.index(1)
-        l = len(self._cups)
+    def get_part1_result(self):
+        cup = self._find(1)
         result = ''
-        for i in range(1, l):
-            n = (idx + i) % l
-            result += str(self._cups[n])
+        while True:
+            cup = cup.next
+            if cup.value == 1:
+                break
+            result += str(cup.value)
         return result
+
+    def get_part2_result(self):
+        cup = self._find(1)
+        result = 1
+        for i in range(0, 2):
+            cup = cup.next
+            result *= cup.value
+        return result
+
+
+class Application:
+    def __init__(self, raw_data):
+        self._raw_data = raw_data
+        self._parse_data()
+
+    def _parse_data(self):
+        self._cups = Cups()
+        for ch in self._raw_data[0]:
+            self._cups.append(int(ch))
 
     def do_part1(self):
-        self._do_moves(100)
-        return self._cups_as_string()
+        for i in range(0, 100):
+            self._cups.move_cups()
+        return self._cups.get_part1_result()
 
     def _reset_for_part2(self):
-        self._cups = self._starting_cups
-        self._current_cup = 0
-        for i in range(self._max + 1, 1000000):
+        self._parse_data()
+        for i in range(self._cups.max + 1, 1000001):
             self._cups.append(i)
-        self._max = 1000000
-
-    def _get_part2_result(self):
-        idx = self._cups.index(1)
-        l = len(self._cups)
-        result = []
-        for i in range(idx + 1, idx + 3):
-            n = i % l
-            result.append(self._cups[n])
-        return result
 
     def do_part2(self):
-        #self._reset_for_part2()
-        #self._do_moves(10000000)
-        #print(self._get_part2_result())
-        return 0
+        self._reset_for_part2()
+        for i in range(0, 10000000):
+            self._cups.move_cups()
+        return self._cups.get_part2_result()
 
     def execute(self):
         print('Part 1 result:', self.do_part1())
