@@ -6,7 +6,7 @@ import unittest
 
 class TestDay13(unittest.TestCase):
     def test_part1(self):
-        data = [
+        raw_data = [
             '/->-\\',
             '|   |  /----\\',
             '| /-+--+-\\  |',
@@ -14,11 +14,11 @@ class TestDay13(unittest.TestCase):
             '\\-+-/  \\-+--/',
             '  \\------/'
         ]
-        (x,y) = day13.move_until_crash(data)
-        self.assertEqual((7,3), (x,y))
+        app = day13.Application(raw_data)
+        self.assertEqual((7, 3), app.do_part1())
 
     def test_part2(self):
-        data = [
+        raw_data = [
             '/>-<\\',
             '|   |',
             '| /<+-\\',
@@ -27,8 +27,8 @@ class TestDay13(unittest.TestCase):
             '  |   ^',
             '  \\<->/'
         ]
-        (x,y) = day13.move_until_one_cart_left(data)
-        self.assertEqual((6,4), (x,y))
+        app = day13.Application(raw_data)
+        self.assertEqual((6, 4), app.do_part2())
 
 
 if __name__ == '__main__':
