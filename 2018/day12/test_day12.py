@@ -6,7 +6,7 @@ import unittest
 
 class TestDay12(unittest.TestCase):
     def setUp(self):
-        self._data = [
+        self.raw_data = [
             'initial state: #..#.#..##......###...###',
             '',
             '...## => #',
@@ -24,10 +24,10 @@ class TestDay12(unittest.TestCase):
             '###.# => #',
             '####. => #'
         ]
+        self.app = day12.Application(self.raw_data)
 
     def test_part1(self):
-        n = day12.calc_score_after_generations(self._data, 20)
-        self.assertEqual(325, n)
+        self.assertEqual(325, self.app.do_part1())
 
 
 if __name__ == '__main__':
