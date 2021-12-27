@@ -72,7 +72,7 @@ def parse_lines(raw_data):
   return lines
 
 
-def do_part1(raw_data, do_diagonal=False):
+def do_part1(raw_data):
   lines = parse_lines(raw_data)
   grid = Grid()
   for line in lines:
