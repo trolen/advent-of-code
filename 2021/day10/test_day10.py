@@ -4,7 +4,7 @@ import unittest
 import day10
 
 
-class TestDay02(unittest.TestCase):
+class TestDay10(unittest.TestCase):
     def setUp(self):
         self.raw_data = [
           '[({(<(())[]>[[{[]{<()<>>',
