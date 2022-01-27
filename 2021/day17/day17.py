@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from math import isqrt
-
 
 def read_data(filename):
   with open(filename, 'rt') as file:
