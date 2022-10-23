@@ -60,10 +60,18 @@ def min_moves_to_top_level(floors):
 
 def do_part1(data):
     floors = parse_input(data)
+    return min_moves_to_top_level(floors), floors
+
+
+def do_part2(floors):
+    floors[0] = floors[0].union([('elerium', 'generator'), ('elerium', 'microchip'),
+                                 ('dilithium', 'generator'), ('dilithium', 'microchip')])
     return min_moves_to_top_level(floors)
 
 
 if __name__ == '__main__':
     rawData = read_data('input.txt')
-    result1 = do_part1(rawData)
+    result1, floors1 = do_part1(rawData)
     print('Part 1 result:', result1)
+    result2 = do_part2(floors1)
+    print('Part 2 result:', result2)

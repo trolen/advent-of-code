@@ -14,7 +14,8 @@ class TestDay11(unittest.TestCase):
         ]
 
     def test_part1(self):
-        pass
+        result, _ = day11.do_part1(self._data)
+        self.assertEqual(result, 11)
 
 
 if __name__ == '__main__':
