@@ -21,9 +21,9 @@ class TestDay03(unittest.TestCase):
         app = day03.Application(self._raw_input)
         self.assertEqual(4361, app.do_part1())
 
-    #def test_part2(self):
-    #    app = day03.Application(self._raw_input)
-    #    self.assertEqual(2286, app.do_part2())
+    def test_part2(self):
+        app = day03.Application(self._raw_input)
+        self.assertEqual(467835, app.do_part2())
 
 
 if __name__ == '__main__':
