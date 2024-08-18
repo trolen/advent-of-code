@@ -1,5 +1,3 @@
-import re
-
 def read_input(filename):
     with open(filename) as file:
         return file.readlines()
