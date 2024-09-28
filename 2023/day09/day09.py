@@ -17,7 +17,6 @@ class Application:
         differences = [(numbers[i] - numbers[i - 1]) for i in range(1, len(numbers))]
         return numbers[-1] + self._find_next(differences)
 
-
     def do_part1(self):
         return sum(self._find_next(row) for row in self._data)
 
