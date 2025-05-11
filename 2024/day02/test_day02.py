@@ -1,7 +1,7 @@
 import day02
 import unittest
 
-class TestDay01(unittest.TestCase):
+class TestDay02(unittest.TestCase):
     def setUp(self):
         raw_input1 = [
           '7 6 4 2 1',
