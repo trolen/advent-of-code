@@ -3,7 +3,7 @@ import unittest
 
 class TestDay05(unittest.TestCase):
     def setUp(self):
-        raw_input1 = [
+        raw_input = [
             '47|53',
             '97|13',
             '97|61',
@@ -33,7 +33,7 @@ class TestDay05(unittest.TestCase):
             '61,13,29',
             '97,13,75,29,47'
         ]
-        self.app = day05.Application(raw_input1)
+        self.app = day05.Application(raw_input)
 
     def test_part1(self):
         self.assertEqual(143, self.app.do_part1())
